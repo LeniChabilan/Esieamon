@@ -27,6 +27,12 @@ public class Battle {
         }
     }
 
+    public void displayCurrentStatus() {
+        System.out.println("\nStatut actuel des monstres:");
+        System.out.println(player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP");
+        System.out.println(player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP");
+    }
+
     public void startBattle() {
         while (!isOver()) {
             Attack attack1 = chooseAttack(player1);
@@ -43,6 +49,7 @@ public class Battle {
                     attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster());
                 }
             }
+            displayCurrentStatus();
         }
         displayWinner();
     }
@@ -78,6 +85,7 @@ public class Battle {
             }
         }
         
+        scanner.close();
         return attacks.get(choice - 1);
     }
 }

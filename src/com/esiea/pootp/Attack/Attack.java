@@ -20,11 +20,19 @@ public class Attack {
     }
 
     public void performAttack(Monster attacker, Monster defender) {
-        // Random coefficient between 0.85 and 1.0
+        if (nbUses <= 0) {
+            System.out.println(attacker.getName() + " cannot use " + name + " anymore!");
+            return;
+        }
+        nbUses--;
+
+        // Calculate damage
         double coef = 0.85 + Math.random() * 0.15;
-        // Base damage calculation using doubles, then cast to int
         double base = ((11.0 * this.power * attacker.getPower()) / (25.0 * defender.getDefense())) + 2.0;
         int damage = (int) Math.round(base * coef);
+
+
+        // Apply damage
         defender.currentHealth -= damage;
         if (defender.currentHealth < 0) {
             defender.currentHealth = 0;
