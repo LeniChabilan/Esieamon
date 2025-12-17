@@ -7,5 +7,9 @@ public class ElectricMonster extends Monster{
         super(name, health, power, defense, speed);
         this.paralysisChance = paralysisChance;
     }
+
+    public double getParalysisChance() {
+        return paralysisChance;
+    }
     
 }
