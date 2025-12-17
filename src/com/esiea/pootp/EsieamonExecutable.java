@@ -2,7 +2,7 @@ package com.esiea.pootp;
 
 import com.esiea.pootp.Attack.Attack;
 import com.esiea.pootp.Battle.Battle;
-import com.esiea.pootp.Monster.FireMonster;
+import com.esiea.pootp.Monster.*;
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Attack.AttackType;
 
@@ -19,16 +19,17 @@ public class EsieamonExecutable {
         flareon.attacks.add(flameThrower);
         player1.monsters.add(flareon);
 
-        FireMonster torchic = new FireMonster("Torchic", 95, 48, 28, 68, 0.17);
-        Attack fireSpin = new Attack("Fire Spin", 35, 15, 0.1, AttackType.FIRE);
-        Attack heatWave = new Attack("Heat Wave", 95, 10, 0.05, AttackType.FIRE);
-        torchic.attacks.add(fireSpin);
-        torchic.attacks.add(heatWave);
-        player2.monsters.add(torchic);
+        
+        WaterMonster squirtle = new WaterMonster("Squirtle", 100, 50, 40, 60, 0.2, 0.1);
+        Attack waterGun = new Attack("Water Gun", 40, 25, 0.1, AttackType.WATER);
+        Attack hydroPump = new Attack("Hydro Pump", 90, 15, 0.05, AttackType.WATER);
+        squirtle.attacks.add(waterGun);
+        squirtle.attacks.add(hydroPump);
+        player2.monsters.add(squirtle);
 
         Battle battle = new Battle(player1, player2);
 
-        System.out.println("Battle started between " + battle.player1.name + " and " + battle.player2.name);
+        System.out.println("Début du combat entre " + battle.player1.name + " et " + battle.player2.name);
 
         battle.startBattle();
     }
