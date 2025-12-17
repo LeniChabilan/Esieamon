@@ -85,7 +85,6 @@ public class Battle {
             }
         }
         
-        scanner.close();
         return attacks.get(choice - 1);
     }
 }
