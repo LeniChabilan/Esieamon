@@ -28,6 +28,16 @@ public class Attack {
         }
         nbUses--;
 
+        // Check for failure
+        if (Math.random() < failureRate) {
+            result.put("attackName", name);
+            result.put("attackerName", attacker.getName());
+            result.put("defenderName", defender.getName());
+            result.put("damage", "0");
+            result.put("effectiveness", "l'attaque a échoué !");
+            return result;
+        }
+
         // Calculate damage
         double coef = 0.85 + Math.random() * 0.15;
         double typeEffectiveness = getTypeEffectiveness(this.type, defender);
