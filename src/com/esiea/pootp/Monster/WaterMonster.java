@@ -9,4 +9,11 @@ public class WaterMonster extends Monster {
         this.floodChance = floodChance;
         this.fallChance = fallChance;
     }
+
+    public double getFloodChance() {
+        return floodChance;
+    }
+    public double getFallChance() {
+        return fallChance;
+    }
 }

@@ -19,7 +19,7 @@ Paralysis 0.15
 EndMonster
 
 Monster
-Name Voltorb
+Name Voltorbe
 Type Electric
 HP 80 111
 Speed 90 121
@@ -39,7 +39,7 @@ Burn 0.2
 EndMonster
 
 Monster
-Name Flareon
+Name Pyroli
 Type Fire
 HP 130 161
 Speed 95 126
@@ -49,7 +49,7 @@ Burn 0.15
 EndMonster
 
 Monster
-Name Charmander
+Name Salameche
 Type Fire
 HP 90 121
 Speed 85 116
@@ -59,8 +59,143 @@ Burn 0.25
 EndMonster
 
 
+Monster
+Name Carapuce
+Type Water
+HP 94 125
+Speed 63 94
+Attack 68 99
+Defense 85 116
+FloodChance 0.2
+FallChance 0.3
+EndMonster
+
+Monster
+Name Leviator
+Type Water
+HP 135 166
+Speed 91 122
+Attack 105 136
+Defense 89 120
+FloodChance 0.15
+FallChance 0.35
+EndMonster
+
+Monster
+Name Tentacool
+Type Water
+HP 80 111
+Speed 80 111
+Attack 60 91
+Defense 55 86
+FloodChance 0.25
+FallChance 0.4
+EndMonster
+
+
+
+
+
+
+Monster
+Name Onix
+Type Earth
+HP 85 116
+Speed 80 111
+Attack 65 96
+Defense 140 171
+BurrowChance 0.05
+EndMonster
+
+Monster
+Name Rhinocorne
+Type Earth
+HP 150 181
+Speed 45 76
+Attack 95 126
+Defense 95 126
+BurrowChance 0.05
+EndMonster
+
+Monster
+Name Sabelette
+Type Earth
+HP 100 131
+Speed 60 91
+Attack 85 116
+Defense 95 126
+BurrowChance 0.05
+EndMonster
+
+
+Monster
+Name Bulbizarre
+Type Grass
+HP 95 126
+Speed 65 96
+Attack 69 100
+Defense 69 100
+HealChance 0.2
+EndMonster
+
+Monster
+Name Florizarre
+Type Grass
+HP 140 171
+Speed 90 121
+Attack 92 123
+Defense 93 124
+HealChance 0.2
+EndMonster
+
+Monster
+Name Mystherbe
+Type Grass
+HP 95 126
+Speed 50 81
+Attack 65 96
+Defense 75 106
+HealChance 0.2
+EndMonster
+
+
+
+
+
+Monster
+Name Aspicot
+Type Insect
+HP 80 111
+Speed 70 101
+Attack 55 86
+Defense 40 71
+EndMonster
+
+Monster
+Name Dardargnan
+Type Insect
+HP 115 146
+Speed 95 126
+Attack 100 131
+Defense 50 81
+EndMonster
+
+Monster
+Name Papilusion
+Type Insect
+HP 110 141
+Speed 90 121
+Attack 65 96
+Defense 70 101
+EndMonster
+
+
+
+
+
+
 Attack
-Name Thunder Shock
+Name Eclair
 Type Electric
 Power 40
 NbUse 30
@@ -68,7 +203,7 @@ Fail 0.1
 EndAttack
 
 Attack
-Name Thunderbolt
+Name Eclair de Tonnerre
 Type Electric
 Power 90
 NbUse 15
@@ -76,7 +211,7 @@ Fail 0.05
 EndAttack
 
 Attack
-Name Thunder
+Name Fatal Foudre
 Type Electric
 Power 110
 NbUse 10
@@ -84,7 +219,7 @@ Fail 0.3
 EndAttack
 
 Attack
-Name Spark
+Name Etincelle
 Type Electric
 Power 65
 NbUse 20
@@ -92,7 +227,7 @@ Fail 0.08
 EndAttack
 
 Attack
-Name Wild Charge
+Name Eclair Fou
 Type Electric
 Power 90
 NbUse 15
@@ -100,15 +235,19 @@ Fail 0.1
 EndAttack
 
 Attack
-Name Volt Tackle
+Name Electacle
 Type Electric
 Power 120
 NbUse 8
 Fail 0.2
 EndAttack
 
+
+
+
+
 Attack
-Name Ember
+Name Flammeche
 Type Fire
 Power 40
 NbUse 25
@@ -116,7 +255,7 @@ Fail 0.1
 EndAttack
 
 Attack
-Name Flamethrower
+Name Lance-flammes
 Type Fire
 Power 90
 NbUse 15
@@ -124,7 +263,7 @@ Fail 0.05
 EndAttack
 
 Attack
-Name Fire Blast
+Name Deflagration
 Type Fire
 Power 110
 NbUse 10
@@ -132,7 +271,7 @@ Fail 0.15
 EndAttack
 
 Attack
-Name Flame Wheel
+Name Roue de Feu
 Type Fire
 Power 60
 NbUse 20
@@ -140,7 +279,7 @@ Fail 0.08
 EndAttack
 
 Attack
-Name Heat Wave
+Name Canicule
 Type Fire
 Power 95
 NbUse 10
@@ -148,7 +287,7 @@ Fail 0.1
 EndAttack
 
 Attack
-Name Flare Blitz
+Name Boutefeu
 Type Fire
 Power 120
 NbUse 8
@@ -156,50 +295,384 @@ Fail 0.2
 EndAttack
 
 
+
+
+
+
+
+Attack
+Name Pistolet a O
+Type Water
+Power 40
+NbUse 25
+Fail 0.1
+EndAttack
+
+Attack
+Name Hydrocanon
+Type Water
+Power 110
+NbUse 10
+Fail 0.15
+EndAttack
+
+Attack
+Name Surf
+Type Water
+Power 90
+NbUse 15
+Fail 0.05
+EndAttack
+
+Attack
+Name Aqua-Jet
+Type Water
+Power 60
+NbUse 20
+Fail 0.08
+EndAttack
+
+Attack
+Name Cascade
+Type Water
+Power 80
+NbUse 15
+Fail 0.1
+EndAttack
+
+Attack
+Name Hydroqueue
+Type Water
+Power 120
+NbUse 8
+Fail 0.2
+EndAttack
+
+
+
+
+
+Attack
+Name Jet-Pierres
+Type Earth
+Power 50
+NbUse 25
+Fail 0.12
+EndAttack
+
+Attack
+Name Seisme
+Type Earth
+Power 100
+NbUse 10
+Fail 0.05
+EndAttack
+
+Attack
+Name Telluriforce
+Type Earth
+Power 110
+NbUse 10
+Fail 0.15
+EndAttack
+
+Attack
+Name Piege de Roc
+Type Earth
+Power 65
+NbUse 20
+Fail 0.08
+EndAttack
+
+Attack
+Name Tunnel
+Type Earth
+Power 80
+NbUse 15
+Fail 0.1
+EndAttack
+
+Attack
+Name Abime
+Type Earth
+Power 120
+NbUse 8
+Fail 0.25
+EndAttack
+
+
+
+
+
+
+Attack
+Name Fouet Lianes
+Type Grass
+Power 45
+NbUse 25
+Fail 0.1
+EndAttack
+
+Attack
+Name Lance-Soleil
+Type Grass
+Power 120
+NbUse 8
+Fail 0.2
+EndAttack
+
+Attack
+Name Tranch-Herbe
+Type Grass
+Power 55
+NbUse 25
+Fail 0.08
+EndAttack
+
+Attack
+Name Vampigraine
+Type Grass
+Power 70
+NbUse 15
+Fail 0.1
+EndAttack
+
+Attack
+Name Tempete Verte
+Type Grass
+Power 100
+NbUse 10
+Fail 0.12
+EndAttack
+
+Attack
+Name Megafouet
+Type Grass
+Power 120
+NbUse 8
+Fail 0.18
+EndAttack
+
+
+
+
+
+
+Attack
+Name Piqure
+Type Insect
+Power 35
+NbUse 30
+Fail 0.1
+EndAttack
+
+Attack
+Name Dard-Venin
+Type Insect
+Power 50
+NbUse 20
+Fail 0.08
+EndAttack
+
+Attack
+Name Plaie-Croix
+Type Insect
+Power 80
+NbUse 15
+Fail 0.05
+EndAttack
+
+Attack
+Name Bourdon
+Type Insect
+Power 90
+NbUse 15
+Fail 0.1
+EndAttack
+
+Attack
+Name Megacorne
+Type Insect
+Power 120
+NbUse 10
+Fail 0.15
+EndAttack
+
+Attack
+Name Survinsecte
+Type Insect
+Power 110
+NbUse 8
+Fail 0.2
+EndAttack
+
+
+
+
+
+
+
+
 AttackMonster
 Monster Pikachu
-Attack Thunder Shock
-Attack Thunderbolt
-Attack Thunder
-Attack Spark
+Attack Eclair
+Attack Eclair de Tonnerre
+Attack Fatal Foudre
+Attack Etincelle
 EndAttackMonster
 
 AttackMonster
 Monster Raichu
-Attack Thunderbolt
-Attack Thunder
-Attack Wild Charge
-Attack Volt Tackle
+Attack Eclair de Tonnerre
+Attack Fatal Foudre
+Attack Eclair Fou
+Attack Electacle
 EndAttackMonster
 
 AttackMonster
-Monster Voltorb
-Attack Thunder Shock
-Attack Spark
-Attack Thunderbolt
-Attack Thunder
+Monster Voltorbe
+Attack Eclair
+Attack Etincelle
+Attack Eclair de Tonnerre
+Attack Fatal Foudre
 EndAttackMonster
 
 AttackMonster
 Monster Magmar
-Attack Ember
-Attack Flamethrower
-Attack Fire Blast
-Attack Flame Wheel
+Attack Flammeche
+Attack Lance-flammes
+Attack Deflagration
+Attack Roue de Feu
 EndAttackMonster
 
 AttackMonster
-Monster Flareon
-Attack Flamethrower
-Attack Fire Blast
-Attack Heat Wave
-Attack Flare Blitz
+Monster Pyroli
+Attack Lance-flammes
+Attack Deflagration
+Attack Canicule
+Attack Boutefeu
 EndAttackMonster
 
 AttackMonster
-Monster Charmander
-Attack Ember
-Attack Flame Wheel
-Attack Flamethrower
-Attack Fire Blast
+Monster Salameche
+Attack Flammeche
+Attack Roue de Feu
+Attack Lance-flammes
+Attack Deflagration
+EndAttackMonster
+
+
+
+
+
+AttackMonster
+Monster Carapuce
+Attack Pistolet a O
+Attack Aqua-Jet
+Attack Surf
+Attack Cascade
+EndAttackMonster
+
+AttackMonster
+Monster Leviator
+Attack Surf
+Attack Hydrocanon
+Attack Cascade
+Attack Hydroqueue
+EndAttackMonster
+
+AttackMonster
+Monster Tentacool
+Attack Pistolet a O
+Attack Aqua-Jet
+Attack Surf
+Attack Hydrocanon
+EndAttackMonster
+
+
+
+
+
+
+
+AttackMonster
+Monster Onix
+Attack Jet-Pierres
+Attack Tunnel
+Attack Seisme
+Attack Telluriforce
+EndAttackMonster
+
+AttackMonster
+Monster Rhinocorne
+Attack Seisme
+Attack Telluriforce
+Attack Piege de Roc
+Attack Abime
+EndAttackMonster
+
+AttackMonster
+Monster Sabelette
+Attack Jet-Pierres
+Attack Piege de Roc
+Attack Tunnel
+Attack Seisme
+EndAttackMonster
+
+
+
+
+
+
+AttackMonster
+Monster Bulbizarre
+Attack Fouet Lianes
+Attack Tranch-Herbe
+Attack Vampigraine
+Attack Lance-Soleil
+EndAttackMonster
+
+AttackMonster
+Monster Florizarre
+Attack Lance-Soleil
+Attack Tempete Verte
+Attack Vampigraine
+Attack Megafouet
+EndAttackMonster
+
+AttackMonster
+Monster Mystherbe
+Attack Fouet Lianes
+Attack Tranch-Herbe
+Attack Vampigraine
+Attack Tempete Verte
+EndAttackMonster
+
+
+
+
+
+
+AttackMonster
+Monster Aspicot
+Attack Piqure
+Attack Dard-Venin
+Attack Plaie-Croix
+Attack Bourdon
+EndAttackMonster
+
+AttackMonster
+Monster Dardargnan
+Attack Plaie-Croix
+Attack Bourdon
+Attack Megacorne
+Attack Survinsecte
+EndAttackMonster
+
+AttackMonster
+Monster Papilusion
+Attack Piqure
+Attack Dard-Venin
+Attack Plaie-Croix
+Attack Bourdon
 EndAttackMonster

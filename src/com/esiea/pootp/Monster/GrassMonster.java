@@ -7,5 +7,9 @@ public class GrassMonster extends NatureMonster {
         super(name, health, power, defense, speed);
         this.healChance = healChance;
     }
+
+    public double getHealChance() {
+        return healChance;
+    }
     
 }

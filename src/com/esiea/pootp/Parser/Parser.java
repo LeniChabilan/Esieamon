@@ -94,7 +94,8 @@ public class Parser {
         int speed = 0;
         int attack = 0;
         int defense = 0;
-        double specialChance = 0.0;
+        double specialChance1 = 0.0;
+        double specialChance2 = 0.0;
         
         String line;
         while ((line = reader.readLine()) != null) {
@@ -130,12 +131,20 @@ public class Parser {
                     break;
                 case "Paralysis":
                 case "Burn":
-                    specialChance = Double.parseDouble(parts[1]);
+                case "HealChance":
+                case "BurrowChance":
+                    specialChance1 = Double.parseDouble(parts[1]);
                     break;
-            }
+                case "FloodChance":
+                    specialChance1 = Double.parseDouble(parts[1]);
+                    break;
+                case "FallChance":
+                    specialChance2 = Double.parseDouble(parts[1]);
+                    break;
+                }
         }
         
-        return new MonsterData(name, type, hp, speed, attack, defense, specialChance);
+        return new MonsterData(name, type, hp, speed, attack, defense, specialChance1, specialChance2);
     }
     
     private Attack parseAttack(BufferedReader reader) throws IOException {
@@ -215,10 +224,22 @@ public class Parser {
         switch (data.type.toUpperCase()) {
             case "FIRE":
                 return new FireMonster(data.name, data.hp, data.attack, 
-                                      data.defense, data.speed, data.specialChance);
+                                      data.defense, data.speed, data.specialChance1);
             case "ELECTRIC":
                 return new ElectricMonster(data.name, data.hp, data.attack, 
-                                      data.defense, data.speed, data.specialChance);
+                                      data.defense, data.speed, data.specialChance1);
+            case "WATER":
+                return new WaterMonster(data.name, data.hp, data.attack, 
+                                      data.defense, data.speed, data.specialChance1, data.specialChance2);
+            case "GRASS":
+                return new GrassMonster(data.name, data.hp, data.attack, 
+                                      data.defense, data.speed, data.specialChance1);
+            case "EARTH":
+                return new EarthMonster(data.name, data.hp, data.attack, 
+                                      data.defense, data.speed, data.specialChance1);
+            case "INSECT":
+                return new InsectMonster(data.name, data.hp, data.attack, 
+                                      data.defense, data.speed);
             default:
                 throw new IllegalArgumentException("Type de monstre inconnu: " + data.type);
         }
@@ -236,7 +257,27 @@ public class Parser {
                                   original.getPower(), original.getDefense(), 
                                   original.getSpeed(), ((ElectricMonster) original).getParalysisChance());
         }
-        // Ajouter d'autres types ici
+        else if (original instanceof WaterMonster) {
+            return new WaterMonster(original.getName(), original.getHealth(), 
+                                  original.getPower(), original.getDefense(), 
+                                  original.getSpeed(), ((WaterMonster) original).getFloodChance(),
+                                  ((WaterMonster) original).getFallChance());
+        }
+        else if (original instanceof GrassMonster) {
+            return new GrassMonster(original.getName(), original.getHealth(), 
+                                  original.getPower(), original.getDefense(), 
+                                  original.getSpeed(), ((GrassMonster) original).getHealChance());
+        }
+        else if (original instanceof EarthMonster) {
+            return new EarthMonster(original.getName(), original.getHealth(), 
+                                  original.getPower(), original.getDefense(), 
+                                  original.getSpeed(), ((EarthMonster) original).getBurrowChance());
+        }
+        else if (original instanceof InsectMonster) {
+            return new InsectMonster(original.getName(), original.getHealth(), 
+                                  original.getPower(), original.getDefense(), 
+                                  original.getSpeed());
+        }
         return null;
     }
     
@@ -248,16 +289,18 @@ public class Parser {
         int speed;
         int attack;
         int defense;
-        double specialChance;
+        double specialChance1 = 0.0;  
+        double specialChance2 = 0.0;
         
-        MonsterData(String name, String type, int hp, int speed, int attack, int defense, double specialChance) {
+        MonsterData(String name, String type, int hp, int speed, int attack, int defense, double specialChance1, double specialChance2) {
             this.name = name;
             this.type = type;
             this.hp = hp;
             this.speed = speed;
             this.attack = attack;
             this.defense = defense;
-            this.specialChance = specialChance;
+            this.specialChance1 = specialChance1;
+            this.specialChance2 = specialChance2;
         }
     }
 }
