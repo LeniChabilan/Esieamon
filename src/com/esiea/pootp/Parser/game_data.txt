@@ -1,0 +1,205 @@
+Monster
+Name Pikachu
+Type Electric
+HP 110 141
+Speed 110 141
+Attack 75 106
+Defense 50 82
+Paralysis 0.2
+EndMonster
+
+Monster
+Name Raichu
+Type Electric
+HP 130 161
+Speed 100 131
+Attack 90 121
+Defense 60 91
+Paralysis 0.15
+EndMonster
+
+Monster
+Name Voltorb
+Type Electric
+HP 80 111
+Speed 90 121
+Attack 55 86
+Defense 40 71
+Paralysis 0.25
+EndMonster
+
+Monster 
+Name Magmar
+Type Fire
+HP 120 151
+Speed 80 111
+Attack 95 126
+Defense 70 101
+Burn 0.2
+EndMonster
+
+Monster
+Name Flareon
+Type Fire
+HP 130 161
+Speed 95 126
+Attack 100 131
+Defense 80 111
+Burn 0.15
+EndMonster
+
+Monster
+Name Charmander
+Type Fire
+HP 90 121
+Speed 85 116
+Attack 70 101
+Defense 50 81
+Burn 0.25
+EndMonster
+
+
+Attack
+Name Thunder Shock
+Type Electric
+Power 40
+NbUse 30
+Fail 0.1
+EndAttack
+
+Attack
+Name Thunderbolt
+Type Electric
+Power 90
+NbUse 15
+Fail 0.05
+EndAttack
+
+Attack
+Name Thunder
+Type Electric
+Power 110
+NbUse 10
+Fail 0.3
+EndAttack
+
+Attack
+Name Spark
+Type Electric
+Power 65
+NbUse 20
+Fail 0.08
+EndAttack
+
+Attack
+Name Wild Charge
+Type Electric
+Power 90
+NbUse 15
+Fail 0.1
+EndAttack
+
+Attack
+Name Volt Tackle
+Type Electric
+Power 120
+NbUse 8
+Fail 0.2
+EndAttack
+
+Attack
+Name Ember
+Type Fire
+Power 40
+NbUse 25
+Fail 0.1
+EndAttack
+
+Attack
+Name Flamethrower
+Type Fire
+Power 90
+NbUse 15
+Fail 0.05
+EndAttack
+
+Attack
+Name Fire Blast
+Type Fire
+Power 110
+NbUse 10
+Fail 0.15
+EndAttack
+
+Attack
+Name Flame Wheel
+Type Fire
+Power 60
+NbUse 20
+Fail 0.08
+EndAttack
+
+Attack
+Name Heat Wave
+Type Fire
+Power 95
+NbUse 10
+Fail 0.1
+EndAttack
+
+Attack
+Name Flare Blitz
+Type Fire
+Power 120
+NbUse 8
+Fail 0.2
+EndAttack
+
+
+AttackMonster
+Monster Pikachu
+Attack Thunder Shock
+Attack Thunderbolt
+Attack Thunder
+Attack Spark
+EndAttackMonster
+
+AttackMonster
+Monster Raichu
+Attack Thunderbolt
+Attack Thunder
+Attack Wild Charge
+Attack Volt Tackle
+EndAttackMonster
+
+AttackMonster
+Monster Voltorb
+Attack Thunder Shock
+Attack Spark
+Attack Thunderbolt
+Attack Thunder
+EndAttackMonster
+
+AttackMonster
+Monster Magmar
+Attack Ember
+Attack Flamethrower
+Attack Fire Blast
+Attack Flame Wheel
+EndAttackMonster
+
+AttackMonster
+Monster Flareon
+Attack Flamethrower
+Attack Fire Blast
+Attack Heat Wave
+Attack Flare Blitz
+EndAttackMonster
+
+AttackMonster
+Monster Charmander
+Attack Ember
+Attack Flame Wheel
+Attack Flamethrower
+Attack Fire Blast
+EndAttackMonster
