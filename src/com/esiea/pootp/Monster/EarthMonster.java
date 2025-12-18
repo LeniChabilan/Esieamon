@@ -7,4 +7,8 @@ public class EarthMonster extends Monster {
         super(name, maxHealth, power, defense, speed);
         this.burrowChance = burrowChance;
     }
+
+    public double getBurrowChance() {
+        return burrowChance;
+    }
 }
