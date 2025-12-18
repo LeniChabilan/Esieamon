@@ -28,8 +28,9 @@ public class Attack {
 
         // Calculate damage
         double coef = 0.85 + Math.random() * 0.15;
+        double typeEffectiveness = getTypeEffectiveness(this.type, defender);
         double base = ((11.0 * this.power * attacker.getPower()) / (25.0 * defender.getDefense())) + 2.0;
-        int damage = (int) Math.round(base * coef);
+        int damage = (int) Math.round(base * coef * typeEffectiveness);
 
 
         // Apply damage
@@ -39,6 +40,56 @@ public class Attack {
         }
     }
 
+    private double getTypeEffectiveness(AttackType attackType, Monster defender) {
+        double effectiveness = 1.0;
+        switch (attackType) {
+            case FIRE:
+                if (defender instanceof NatureMonster) {
+                    effectiveness = 2.0;
+                }
+                if (defender instanceof WaterMonster) {
+                    effectiveness = 0.5;
+                }
+                break;
+            case WATER:
+                if (defender instanceof FireMonster) {
+                    effectiveness = 2.0;
+                }
+                if (defender instanceof ElectricMonster) {
+                    effectiveness = 0.5;
+                }
+                break;
+            case GRASS:
+            case INSECT:
+                if (defender instanceof EarthMonster) {
+                    effectiveness = 2.0;
+                }
+                if (defender instanceof FireMonster) {
+                    effectiveness = 0.5;
+                }
+                break;
+            case ELECTRIC:
+                if (defender instanceof WaterMonster) {
+                    effectiveness = 2.0;
+                }
+                if (defender instanceof EarthMonster) {
+                    effectiveness = 0.5;
+                }
+                break;
+            case EARTH:
+                if (defender instanceof ElectricMonster) {
+                    effectiveness = 2.0;
+                }
+                if (defender instanceof NatureMonster) {
+                    effectiveness = 0.5;
+                }
+                break;
+            default:
+                break;
+        }
+        return effectiveness;
+    }   
+    
     public String getName() {
         return name;
     }

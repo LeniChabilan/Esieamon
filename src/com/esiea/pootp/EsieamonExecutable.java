@@ -1,6 +1,7 @@
 package com.esiea.pootp;
 
 import com.esiea.pootp.Battle.Battle;
+import com.esiea.pootp.Monster.*;
 import com.esiea.pootp.Parser.Parser;
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Monster.Monster;
@@ -22,6 +23,5 @@ public class EsieamonExecutable {
             System.out.println("Erreur lors du chargement des données: " + e.getMessage());
             e.printStackTrace();
         }
-           
     }
 }
