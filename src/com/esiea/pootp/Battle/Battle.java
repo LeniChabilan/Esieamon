@@ -2,15 +2,26 @@ package com.esiea.pootp.Battle;
 
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Attack.Attack;
+import com.esiea.pootp.Monster.Monster;
+
+import java.util.List;
 import java.util.Scanner;
+import com.esiea.pootp.Parser.Parser;
 
 public class Battle {
     public Player player1;
     public Player player2;
+    private Parser parser;
 
     public Battle(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
+        this.parser = new Parser();
+        try {
+            parser.parseFile("./src/com/esiea/pootp/Parser/game_data.txt");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isOver() {
@@ -33,7 +44,54 @@ public class Battle {
         System.out.println(player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP");
     }
 
+
+    private static void selectMonstersForPlayer(Player player, Parser parser) {
+
+        Scanner scanner = new Scanner(System.in);
+
+        List<Monster> availableMonsters = parser.getAvailableMonsters();
+        
+        System.out.println("\n--- Sélection pour " + player.name + " ---");
+        System.out.println("Monstres disponibles :");
+        
+        for (int i = 0; i < availableMonsters.size(); i++) {
+            Monster monster = availableMonsters.get(i);
+            System.out.println((i + 1) + ". " + monster.getName() + 
+                             " - HP:" + monster.getHealth() + 
+                             " ATK:" + monster.getPower() + 
+                             " DEF:" + monster.getDefense() + 
+                             " SPD:" + monster.getSpeed() +
+                             " (" + monster.attacks.size() + " attaques)");
+        }
+        
+        System.out.print("\nCombien de monstres voulez-vous (1-" + availableMonsters.size() + ") ? ");
+        int nbMonsters = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+        
+        for (int i = 0; i < nbMonsters; i++) {
+            System.out.print("Choisissez le monstre " + (i + 1) + " (1-" + availableMonsters.size() + ") : ");
+            int choice = scanner.nextInt() - 1;
+            scanner.nextLine();
+            
+            if (choice >= 0 && choice < availableMonsters.size()) {
+                Monster selectedMonster = availableMonsters.get(choice);
+                Monster monsterCopy = parser.getMonsterCopy(selectedMonster.getName());
+                
+                if (monsterCopy != null) {
+                    player.monsters.add(monsterCopy);
+                    System.out.println("✓ " + monsterCopy.getName() + " ajouté avec " + 
+                                     monsterCopy.attacks.size() + " attaques !");
+                }
+            }
+        }
+    }
+
     public void startBattle() {
+
+        selectMonstersForPlayer(player1, parser);
+        selectMonstersForPlayer(player2, parser);
+
+
         while (!isOver()) {
             Attack attack1 = chooseAttack(player1);
             Attack attack2 = chooseAttack(player2);
