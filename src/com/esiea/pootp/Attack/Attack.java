@@ -1,6 +1,7 @@
 package com.esiea.pootp.Attack;
 
 import com.esiea.pootp.Monster.*;
+import java.util.HashMap;
 
 public class Attack {
     public String name;
@@ -19,10 +20,11 @@ public class Attack {
         this.type = type;
     }
 
-    public void performAttack(Monster attacker, Monster defender) {
+    public HashMap<String, String> performAttack(Monster attacker, Monster defender) {
+        HashMap<String, String> result = new HashMap<>();
         if (nbUses <= 0) {
             System.out.println(attacker.getName() + " cannot use " + name + " anymore!");
-            return;
+            return result;
         }
         nbUses--;
 
@@ -38,6 +40,20 @@ public class Attack {
         if (defender.currentHealth < 0) {
             defender.currentHealth = 0;
         }
+
+        // Prepare result
+        result.put("damage", Integer.toString(damage));
+        if (typeEffectiveness > 1.0) {
+            result.put("effectiveness", "c'est super efficace !");
+        } else if (typeEffectiveness < 1.0) {
+            result.put("effectiveness", "ce n'est pas très efficace");
+        } else {
+            result.put("effectiveness", "efficacité normale");
+        }
+        result.put("attackName", name);
+        result.put("attackerName", attacker.getName());
+        result.put("defenderName", defender.getName());
+        return result;
     }
 
     private double getTypeEffectiveness(AttackType attackType, Monster defender) {
