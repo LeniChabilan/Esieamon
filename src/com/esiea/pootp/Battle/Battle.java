@@ -5,6 +5,7 @@ import com.esiea.pootp.Attack.Attack;
 import com.esiea.pootp.Monster.Monster;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.Scanner;
 import com.esiea.pootp.Parser.Parser;
 
@@ -12,10 +13,13 @@ public class Battle {
     public Player player1;
     public Player player2;
     private Parser parser;
+    private int teamSize = 3;
 
-    public Battle(Player player1, Player player2) {
-        this.player1 = player1;
-        this.player2 = player2;
+    private static final String COLOR_BLUE = "\u001B[94m";
+    private static final String COLOR_ORANGE = "\u001B[33m";
+    private static final String COLOR_RESET = "\u001B[0m";
+
+    public Battle() {
         this.parser = new Parser();
         try {
             parser.parseFile("./src/com/esiea/pootp/Parser/game_data.txt");
@@ -40,18 +44,17 @@ public class Battle {
 
     public void displayCurrentStatus() {
         System.out.println("\nStatut actuel des monstres:");
-        System.out.println(player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP");
-        System.out.println(player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP");
+        System.out.println(COLOR_BLUE + player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP" + COLOR_RESET);
+        System.out.println(COLOR_ORANGE + player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP" + COLOR_RESET);
     }
 
 
-    private static void selectMonstersForPlayer(Player player, Parser parser) {
-
+    private void selectMonstersForPlayer(Player player, Parser parser, String color) {
         Scanner scanner = new Scanner(System.in);
-
         List<Monster> availableMonsters = parser.getAvailableMonsters();
         
-        System.out.println("\n--- Sélection pour " + player.name + " ---");
+
+        System.out.println("\n" + color + "--- Sélection pour " + player.name + " ---" + COLOR_RESET);
         System.out.println("Monstres disponibles :");
         
         for (int i = 0; i < availableMonsters.size(); i++) {
@@ -63,12 +66,7 @@ public class Battle {
                              " SPD:" + monster.getSpeed() +
                              " (" + monster.attacks.size() + " attaques)");
         }
-        
-        System.out.print("\nCombien de monstres voulez-vous (1-" + availableMonsters.size() + ") ? ");
-        int nbMonsters = scanner.nextInt();
-        scanner.nextLine(); // Consommer le retour à la ligne
-        
-        for (int i = 0; i < nbMonsters; i++) {
+        for (int i = 0; i < teamSize; i++) {
             System.out.print("Choisissez le monstre " + (i + 1) + " (1-" + availableMonsters.size() + ") : ");
             int choice = scanner.nextInt() - 1;
             scanner.nextLine();
@@ -87,24 +85,39 @@ public class Battle {
     }
 
     public void startBattle() {
+        // Player setup
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(COLOR_BLUE + "Nom du Joueur 1: " + COLOR_RESET);
+        String player1Name = scanner.nextLine();
+        this.player1 = new Player(player1Name);
 
-        selectMonstersForPlayer(player1, parser);
-        selectMonstersForPlayer(player2, parser);
+        System.out.print(COLOR_ORANGE + "Nom du Joueur 2: " + COLOR_RESET);
+        String player2Name = scanner.nextLine();
+        this.player2 = new Player(player2Name);
 
+        //team size
+        System.out.print("Taille de l'équipe (nombre de monstres par joueur): ");
+        this.teamSize = scanner.nextInt();
+        scanner.nextLine(); 
 
+        // Monster selection
+        selectMonstersForPlayer(player1, parser, COLOR_BLUE);
+        selectMonstersForPlayer(player2, parser, COLOR_ORANGE);
+
+        // Battle loop
         while (!isOver()) {
-            Attack attack1 = chooseAttack(player1);
-            Attack attack2 = chooseAttack(player2);
+            Attack attack1 = chooseAttack(player1, COLOR_BLUE);
+            Attack attack2 = chooseAttack(player2, COLOR_ORANGE);
 
             if (player1.getCurrentMonster().getSpeed() >= player2.getCurrentMonster().getSpeed()) {
-                attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster());
+                displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster())); 
                 if (player2.getCurrentMonster().getCurrentHealth() > 0) {
-                    attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster());
+                    displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
                 }
             } else {
-                attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster());
+                displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
                 if (player1.getCurrentMonster().getCurrentHealth() > 0) {
-                    attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster());
+                    displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster()));
                 }
             }
             displayCurrentStatus();
@@ -112,7 +125,18 @@ public class Battle {
         displayWinner();
     }
 
-    public Attack chooseAttack(Player player) {
+    private void displayAttackAction(HashMap<String, String> attackResult) {
+        String attackerName = attackResult.get("attackerName");
+        String defenderName = attackResult.get("defenderName");
+        String attackName = attackResult.get("attackName");
+        String damage = attackResult.get("damage");
+        String effectiveness = attackResult.get("effectiveness");
+
+        System.out.println("\u001B[31m\n" + attackerName + " utilise " + attackName + " sur " + defenderName + " !");
+        System.out.println("Cela inflige " + damage + " points de dégâts. " + effectiveness + "\u001B[0m");
+    }
+
+    public Attack chooseAttack(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
         
         // Get current monster and its attacks
@@ -120,7 +144,7 @@ public class Battle {
         var attacks = currentMonster.attacks;
         
         // Display the list of attacks
-        System.out.println("\nChoisissez une attaque pour " + currentMonster.getName() + ":");
+        System.out.println("\n" + color + player.getName() +", une attaque pour " + currentMonster.getName() + ":" + COLOR_RESET);
         for (int i = 0; i < attacks.size(); i++) {
             Attack attack = attacks.get(i);
             System.out.println((i + 1) + ". " + attack.getName() + 

@@ -27,4 +27,8 @@ public class Player {
     public Monster getCurrentMonster() {
         return monsters.get(currentMonsterIndex);
     }
+
+    public String getName() {
+        return name;
+    }
 }
