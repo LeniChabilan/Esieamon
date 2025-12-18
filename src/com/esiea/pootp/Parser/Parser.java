@@ -1,0 +1,263 @@
+package com.esiea.pootp.Parser;
+
+import com.esiea.pootp.Attack.Attack;
+import com.esiea.pootp.Attack.AttackType;
+import com.esiea.pootp.Monster.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Parser {
+    
+    private Map<String, Attack> attacksMap;
+    private Map<String, Monster> monstersMap;
+    
+    public Parser() {
+        this.attacksMap = new HashMap<>();
+        this.monstersMap = new HashMap<>();
+    }
+    
+    public void parseFile(String filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line;
+        
+        Map<String, MonsterData> monsterDataMap = new HashMap<>();
+        Map<String, List<String>> monsterAttacksMap = new HashMap<>();
+        
+        // Première passe : lire toutes les données
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            
+            if (line.equals("Monster")) {
+                MonsterData monsterData = parseMonster(reader);
+                monsterDataMap.put(monsterData.name, monsterData);
+            } else if (line.equals("Attack")) {
+                Attack attack = parseAttack(reader);
+                attacksMap.put(attack.getName(), attack);
+            } else if (line.equals("AttackMonster")) {
+                parseAttackMonster(reader, monsterAttacksMap);
+            }
+        }
+        
+        reader.close();
+        
+        // Deuxième passe : créer les monstres avec leurs attaques
+        for (String monsterName : monsterDataMap.keySet()) {
+            MonsterData data = monsterDataMap.get(monsterName);
+            Monster monster = createMonster(data);
+            
+            // Ajouter les attaques au monstre
+            List<String> attackNames = monsterAttacksMap.get(monsterName);
+            if (attackNames != null) {
+                for (String attackName : attackNames) {
+                    Attack attack = attacksMap.get(attackName);
+                    if (attack != null) {
+                        monster.attacks.add(attack);
+                    }
+                }
+            }
+            
+            monstersMap.put(monsterName, monster);
+        }
+    }
+    
+    public List<Monster> getAvailableMonsters() {
+        return new ArrayList<>(monstersMap.values());
+    }
+    
+    public Monster getMonsterCopy(String name) {
+        Monster original = monstersMap.get(name);
+        if (original == null) {
+            return null;
+        }
+        
+        // Créer une copie du monstre pour que chaque joueur ait son propre monstre
+        Monster copy = createMonsterCopy(original);
+        
+        // Copier les attaques
+        for (Attack attack : original.attacks) {
+            copy.attacks.add(attack);
+        }
+        
+        return copy;
+    }
+    
+    private MonsterData parseMonster(BufferedReader reader) throws IOException {
+        String name = null;
+        String type = null;
+        int hp = 0;
+        int speed = 0;
+        int attack = 0;
+        int defense = 0;
+        double specialChance = 0.0;
+        
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            
+            if (line.equals("EndMonster")) {
+                break;
+            }
+            
+            String[] parts = line.split("\\s+");
+            if (parts.length < 2) continue;
+            
+            String key = parts[0];
+            
+            switch (key) {
+                case "Name":
+                    name = line.substring(5).trim();
+                    break;
+                case "Type":
+                    type = parts[1];
+                    break;
+                case "HP":
+                    hp = Integer.parseInt(parts[2]); // Valeur max
+                    break;
+                case "Speed":
+                    speed = Integer.parseInt(parts[2]);
+                    break;
+                case "Attack":
+                    attack = Integer.parseInt(parts[2]);
+                    break;
+                case "Defense":
+                    defense = Integer.parseInt(parts[2]);
+                    break;
+                case "Paralysis":
+                case "Burn":
+                    specialChance = Double.parseDouble(parts[1]);
+                    break;
+            }
+        }
+        
+        return new MonsterData(name, type, hp, speed, attack, defense, specialChance);
+    }
+    
+    private Attack parseAttack(BufferedReader reader) throws IOException {
+        String name = null;
+        AttackType type = null;
+        int power = 0;
+        int nbUse = 0;
+        double fail = 0.0;
+        
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            
+            if (line.equals("EndAttack")) {
+                break;
+            }
+            
+            String[] parts = line.split("\\s+", 2);
+            if (parts.length < 2) continue;
+            
+            String key = parts[0];
+            String value = parts[1];
+            
+            switch (key) {
+                case "Name":
+                    name = value;
+                    break;
+                case "Type":
+                    type = AttackType.valueOf(value.toUpperCase());
+                    break;
+                case "Power":
+                    power = Integer.parseInt(value);
+                    break;
+                case "NbUse":
+                    nbUse = Integer.parseInt(value);
+                    break;
+                case "Fail":
+                    fail = Double.parseDouble(value);
+                    break;
+            }
+        }
+        
+        return new Attack(name, power, nbUse, fail, type);
+    }
+    
+    private void parseAttackMonster(BufferedReader reader, Map<String, List<String>> monsterAttacksMap) throws IOException {
+        String monsterName = null;
+        List<String> attacks = new ArrayList<>();
+        
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            
+            if (line.equals("EndAttackMonster")) {
+                break;
+            }
+            
+            String[] parts = line.split("\\s+", 2);
+            if (parts.length < 2) continue;
+            
+            String key = parts[0];
+            String value = parts[1];
+            
+            if (key.equals("Monster")) {
+                monsterName = value;
+            } else if (key.equals("Attack")) {
+                attacks.add(value);
+            }
+        }
+        
+        if (monsterName != null) {
+            monsterAttacksMap.put(monsterName, attacks);
+        }
+    }
+    
+    private Monster createMonster(MonsterData data) {
+        switch (data.type.toUpperCase()) {
+            case "FIRE":
+                return new FireMonster(data.name, data.hp, data.attack, 
+                                      data.defense, data.speed, data.specialChance);
+            case "ELECTRIC":
+                return new ElectricMonster(data.name, data.hp, data.attack, 
+                                      data.defense, data.speed, data.specialChance);
+            default:
+                throw new IllegalArgumentException("Type de monstre inconnu: " + data.type);
+        }
+    }
+    
+    private Monster createMonsterCopy(Monster original) {
+        if (original instanceof FireMonster) {
+            return new FireMonster(original.getName(), original.getHealth(), 
+                                  original.getPower(), original.getDefense(), 
+                                  original.getSpeed(), ((FireMonster) original).getBurnChance()
+                                );
+        }
+        else if (original instanceof ElectricMonster) {
+            return new ElectricMonster(original.getName(), original.getHealth(), 
+                                  original.getPower(), original.getDefense(), 
+                                  original.getSpeed(), ((ElectricMonster) original).getParalysisChance());
+        }
+        // Ajouter d'autres types ici
+        return null;
+    }
+    
+    // Classe interne pour stocker les données du monstre temporairement
+    private static class MonsterData {
+        String name;
+        String type;
+        int hp;
+        int speed;
+        int attack;
+        int defense;
+        double specialChance;
+        
+        MonsterData(String name, String type, int hp, int speed, int attack, int defense, double specialChance) {
+            this.name = name;
+            this.type = type;
+            this.hp = hp;
+            this.speed = speed;
+            this.attack = attack;
+            this.defense = defense;
+            this.specialChance = specialChance;
+        }
+    }
+}

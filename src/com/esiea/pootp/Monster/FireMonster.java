@@ -7,4 +7,8 @@ public class FireMonster extends Monster {
         super(name, health, power, defense, speed);
         this.burnChance = burnChance;
     }
+
+    public double getBurnChance() {
+        return burnChance;
+    }
 }
