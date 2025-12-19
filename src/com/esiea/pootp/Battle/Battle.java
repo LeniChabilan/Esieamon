@@ -4,10 +4,13 @@ import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Attack.Attack;
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Battle.ActionType;
+import com.esiea.pootp.Object.ObjectMonster;
 
 import java.util.List;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Collections;
 import com.esiea.pootp.Parser.Parser;
 
 public class Battle {
@@ -111,6 +114,7 @@ public class Battle {
             ActionType action1 = chooseAction(player1, COLOR_BLUE);
             Attack attack1 = null;
             Integer switchIndex1 = null;
+            Integer itemIndex1 = null;
             switch (action1) {
                 case ATTACK:
                     attack1 = chooseAttack(player1, COLOR_BLUE);
@@ -119,7 +123,7 @@ public class Battle {
                     switchIndex1 = chooseMonster(player1, COLOR_BLUE);
                     break;
                 case ITEM:
-                    System.out.println("La fonctionnalité d'objet n'est pas encore implémentée.");
+                    itemIndex1 = chooseItem(player1, COLOR_BLUE);
                     break;
             }
 
@@ -127,6 +131,7 @@ public class Battle {
             ActionType action2 = chooseAction(player2, COLOR_ORANGE);
             Attack attack2 = null;
             Integer switchIndex2 = null;
+            Integer itemIndex2 = null;
             switch (action2) {
                 case ATTACK:
                     attack2 = chooseAttack(player2, COLOR_ORANGE);
@@ -135,7 +140,7 @@ public class Battle {
                     switchIndex2 = chooseMonster(player2, COLOR_ORANGE);
                     break;
                 case ITEM:
-                    System.out.println("La fonctionnalité d'objet n'est pas encore implémentée.");
+                    itemIndex2 = chooseItem(player2, COLOR_ORANGE);
                     break;
             }
 
@@ -148,7 +153,12 @@ public class Battle {
             }
 
             // Perform Item actions
-            //TODO : Implement Item actions
+            if (action1 == ActionType.ITEM) {
+                useItem(player1, itemIndex1, COLOR_BLUE);
+            }
+            if (action2 == ActionType.ITEM) {
+                useItem(player2, itemIndex2, COLOR_ORANGE);
+            }
 
             // Perform attack actions
             if (attack1 != null && attack2 != null) {
@@ -236,22 +246,27 @@ public class Battle {
 
     private int chooseMonster(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
-        List<Monster> availableMonsters = player.getAvailableMonsters();
+        HashMap<Integer, Monster> availableMonsters = player.getAvailableMonstersMap();
 
-        System.out.println("\n" + color + player.getName() + ", choisissez un monstre pour remplacer " + player.getCurrentMonster().getName() + ":" + COLOR_RESET);
-        for (int i = 0; i < availableMonsters.size(); i++) {
-            Monster monster = availableMonsters.get(i);
-            System.out.println((i + 1) + ". " + monster.getName() + 
-                              " (HP: " + monster.getCurrentHealth() + "/" + monster.getHealth() + ")");
+        HashMap<Integer, Integer> indexMap = new HashMap<>();
+        System.out.println("\n" + color + player.getName() + ", choisissez un monstre à envoyer au combat:" + COLOR_RESET);
+        int displayIndex = 1;
+        for (int i = 0; i < player.monsters.size(); i++) {
+            Monster monster = player.monsters.get(i);
+            if (monster.currentHealth > 0 && i != player.currentMonsterIndex) {
+                System.out.println(displayIndex + ". " + monster.getName() + " (HP: " + monster.currentHealth + ")");
+                indexMap.put(displayIndex, i);
+                displayIndex++;
+            }
         }
 
         int choice = -1;
-        while (choice < 1 || choice > availableMonsters.size()) {
-            System.out.print("Votre choix (1-" + availableMonsters.size() + "): ");
+        while (choice < 1 || choice >= displayIndex) {
+            System.out.print("Votre choix (1-" + (displayIndex - 1) + "): ");
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
-                if (choice < 1 || choice > availableMonsters.size()) {
-                    System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + availableMonsters.size());
+                if (choice < 1 || choice >= displayIndex) {
+                    System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + (displayIndex - 1));
                 }
             } else {
                 System.out.println("Veuillez entrer un nombre valide.");
@@ -259,7 +274,40 @@ public class Battle {
             }
         }
 
+        System.out.println("L'index choisi est : " + indexMap.get(choice));
+        return indexMap.get(choice);
+    }
+
+    private Integer chooseItem(Player player, String color) {
+        List<ObjectMonster> inventory = player.getInventory();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("\n" + color + player.getName() + ", choisissez un objet à utiliser:" + COLOR_RESET);
+        for (int i = 0; i < inventory.size(); i++) {
+            ObjectMonster item = inventory.get(i);
+            System.out.println((i + 1) + ". " + item.getName());
+        }
+        int choice = -1;
+        while (choice < 1 || choice > inventory.size()) {
+            System.out.print("Votre choix (1-" + inventory.size() + "): ");
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                if (choice < 1 || choice > inventory.size()) {
+                    System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + inventory.size());
+                }
+            } else {
+                System.out.println("Veuillez entrer un nombre valide.");
+                scanner.next(); 
+            }
+        }
         return choice - 1;
+    }
+
+    private void useItem(Player player, int itemIndex, String color) {
+        ObjectMonster item = player.getInventory().get(itemIndex);
+        System.out.println(color + "\n" + player.getName() + " utilise " + item.getName() + " !" + COLOR_RESET);
+        item.use(player.getCurrentMonster());
+        player.getInventory().remove(itemIndex);
     }
 
     public void displayMonsterKO(Monster monster, String color) {
@@ -304,7 +352,7 @@ public class Battle {
                 }
             } else {
                 System.out.println("Veuillez entrer un nombre valide.");
-                scanner.next(); // Clear invalid input
+                scanner.next();
             }
         }
         

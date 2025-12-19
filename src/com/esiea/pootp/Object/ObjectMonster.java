@@ -16,4 +16,8 @@ public abstract class ObjectMonster{
     public void use(Monster monster){
     }
 
+    public String getName(){
+        return "ObjectMonster";
+    }
+
 }
