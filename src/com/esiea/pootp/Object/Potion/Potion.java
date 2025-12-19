@@ -31,6 +31,11 @@ public class Potion extends ObjectMonster {
     }
 
     @Override
+    public String getName() {
+        return potionEfficiency + " " + potionType + " Potion";
+    }
+
+    @Override
     public void use(Monster monster) {
         switch (potionType) {
             case HP -> {
