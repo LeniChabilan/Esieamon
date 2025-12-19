@@ -1,6 +1,6 @@
 package com.esiea.pootp.Parser;
 
-import com.esiea.pootp.Attack.Attack;
+import com.esiea.pootp.Attack.AttackMonster;
 import com.esiea.pootp.Attack.AttackType;
 import com.esiea.pootp.Monster.*;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class Parser {
     
-    private Map<String, Attack> attacksMap;
+    private Map<String, AttackMonster> attacksMap;
     private Map<String, Monster> monstersMap;
     
     public Parser() {
@@ -37,7 +37,7 @@ public class Parser {
                 MonsterData monsterData = parseMonster(reader);
                 monsterDataMap.put(monsterData.name, monsterData);
             } else if (line.equals("Attack")) {
-                Attack attack = parseAttack(reader);
+                AttackMonster attack = parseAttack(reader);
                 attacksMap.put(attack.getName(), attack);
             } else if (line.equals("AttackMonster")) {
                 parseAttackMonster(reader, monsterAttacksMap);
@@ -55,7 +55,7 @@ public class Parser {
             List<String> attackNames = monsterAttacksMap.get(monsterName);
             if (attackNames != null) {
                 for (String attackName : attackNames) {
-                    Attack attack = attacksMap.get(attackName);
+                    AttackMonster attack = attacksMap.get(attackName);
                     if (attack != null) {
                         monster.attacks.add(attack);
                     }
@@ -80,7 +80,7 @@ public class Parser {
         Monster copy = createMonsterCopy(original);
         
         // Copier les attaques
-        for (Attack attack : original.attacks) {
+        for (AttackMonster attack : original.attacks) {
             copy.attacks.add(attack);
         }
         
@@ -147,7 +147,7 @@ public class Parser {
         return new MonsterData(name, type, hp, speed, attack, defense, specialChance1, specialChance2);
     }
     
-    private Attack parseAttack(BufferedReader reader) throws IOException {
+    private AttackMonster parseAttack(BufferedReader reader) throws IOException {
         String name = null;
         AttackType type = null;
         int power = 0;
@@ -187,7 +187,7 @@ public class Parser {
             }
         }
         
-        return new Attack(name, power, nbUse, fail, type);
+        return new AttackMonster(name, power, nbUse, fail, type);
     }
     
     private void parseAttackMonster(BufferedReader reader, Map<String, List<String>> monsterAttacksMap) throws IOException {

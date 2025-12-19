@@ -2,6 +2,8 @@ package com.esiea.pootp.Battle;
 
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Attack.Attack;
+import com.esiea.pootp.Attack.AttackMonster;
+import com.esiea.pootp.Attack.AttackStruggle;
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Battle.ActionType;
 import com.esiea.pootp.Object.ObjectMonster;
@@ -246,7 +248,6 @@ public class Battle {
 
     private int chooseMonster(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
-        HashMap<Integer, Monster> availableMonsters = player.getAvailableMonstersMap();
 
         HashMap<Integer, Integer> indexMap = new HashMap<>();
         System.out.println("\n" + color + player.getName() + ", choisissez un monstre à envoyer au combat:" + COLOR_RESET);
@@ -331,31 +332,39 @@ public class Battle {
         // Get current monster and its attacks
         var currentMonster = player.getCurrentMonster();
         var attacks = currentMonster.attacks;
-        
-        // Display the list of attacks
-        System.out.println("\n" + color + player.getName() +", une attaque pour " + currentMonster.getName() + ":" + COLOR_RESET);
-        for (int i = 0; i < attacks.size(); i++) {
-            Attack attack = attacks.get(i);
-            System.out.println((i + 1) + ". " + attack.getName() + 
-                              " (Puissance: " + attack.getPower() + 
-                              ", PP: " + attack.getNbUses() + "/" + attack.getMaxUses() + ")");
+
+        if (currentMonster.hasAvailableAttacks() == false) {
+            System.out.println(color + "\n" + player.getName() + ", votre monstre " + currentMonster.getName() + " n'a plus d'attaques disponibles !" + COLOR_RESET);
+            System.out.println("Vous allez utiliser lutte !");
+            return new AttackStruggle();
         }
-        
-        // Get user choice
-        int choice = -1;
-        while (choice < 1 || choice > attacks.size()) {
-            System.out.print("Votre choix (1-" + attacks.size() + "): ");
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-                if (choice < 1 || choice > attacks.size()) {
-                    System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + attacks.size());
-                }
-            } else {
-                System.out.println("Veuillez entrer un nombre valide.");
-                scanner.next();
+
+        else {
+            // Display the list of attacks
+            System.out.println("\n" + color + player.getName() +", une attaque pour " + currentMonster.getName() + ":" + COLOR_RESET);
+            for (int i = 0; i < attacks.size(); i++) {
+                AttackMonster attack = attacks.get(i);
+                System.out.println((i + 1) + ". " + attack.getName() + 
+                                " (Puissance: " + attack.getPower() + 
+                                ", PP: " + attack.getNbUses() + "/" + attack.getMaxUses() + ")");
             }
+            
+            // Get user choice
+            int choice = -1;
+            while (choice < 1 || choice > attacks.size()) {
+                System.out.print("Votre choix (1-" + attacks.size() + "): ");
+                if (scanner.hasNextInt()) {
+                    choice = scanner.nextInt();
+                    if (choice < 1 || choice > attacks.size()) {
+                        System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + attacks.size());
+                    }
+                } else {
+                    System.out.println("Veuillez entrer un nombre valide.");
+                    scanner.next();
+                }
+            }
+            
+            return attacks.get(choice - 1);
         }
-        
-        return attacks.get(choice - 1);
     }
 }

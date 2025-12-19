@@ -2,7 +2,7 @@ package com.esiea.pootp.Monster;
 
 import java.util.List;
 import java.util.ArrayList;
-import com.esiea.pootp.Attack.Attack;
+import com.esiea.pootp.Attack.AttackMonster;
 
 public abstract class Monster {
     public String name;
@@ -11,7 +11,7 @@ public abstract class Monster {
     public int defense;
     public int speed;
     public int currentHealth;
-    public List<Attack> attacks;
+    public List<AttackMonster> attacks;
 
     public Monster(String name, int health, int power, int defense, int speed) {
         this.name = name;
@@ -21,6 +21,15 @@ public abstract class Monster {
         this.speed = speed;
         this.currentHealth = health;
         this.attacks = new ArrayList<>();
+    }
+
+    public boolean hasAvailableAttacks() {
+        for (AttackMonster attack : attacks) {
+            if (attack.nbUses > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getName() {
@@ -47,7 +56,7 @@ public abstract class Monster {
         return currentHealth;
     }
 
-    public List<Attack> getAttacks() {
+    public List<AttackMonster> getAttacks() {
         return attacks;
     }
 
