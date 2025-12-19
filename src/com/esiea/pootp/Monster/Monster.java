@@ -50,4 +50,23 @@ public abstract class Monster {
     public List<Attack> getAttacks() {
         return attacks;
     }
+
+    public void heal(int amount) {
+        currentHealth += amount;
+        if (currentHealth > health) {
+            currentHealth = health;
+        }
+    }
+
+    public void boostAttack(int amount) {
+        power += amount;
+    }
+
+    public void boostDefense(int amount) {
+        defense += amount;
+    }
+
+    public void boostSpeed(int amount) {
+        speed += amount;
+    }
 }
