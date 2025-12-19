@@ -31,4 +31,14 @@ public class Player {
     public String getName() {
         return name;
     }
+
+    public List<Monster> getAvailableMonsters() {
+        List<Monster> available = new ArrayList<>();
+        for (Monster monster : monsters) {
+            if (monster.currentHealth > 0) {
+                available.add(monster);
+            }
+        }
+        return available;
+    }
 }

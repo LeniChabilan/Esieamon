@@ -3,6 +3,7 @@ package com.esiea.pootp.Battle;
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Attack.Attack;
 import com.esiea.pootp.Monster.Monster;
+import com.esiea.pootp.Battle.ActionType;
 
 import java.util.List;
 import java.util.HashMap;
@@ -34,11 +35,11 @@ public class Battle {
 
     public void displayWinner() {
         if (player1.hasUsableMonsters()) {
-            System.out.println("Le joueur " + player1.name + " a gagné la bataille !");
+            System.out.println("\nLe joueur " + player1.name + " a gagné la bataille !");
         } else if (player2.hasUsableMonsters()) {
-            System.out.println("Le joueur " + player2.name + " a gagné la bataille !");
+            System.out.println("\nLe joueur " + player2.name + " a gagné la bataille !");
         } else {
-            System.out.println("La bataille s'est terminée par un match nul !");
+            System.out.println("\nLa bataille s'est terminée par un match nul !");
         }
     }
 
@@ -106,23 +107,163 @@ public class Battle {
 
         // Battle loop
         while (!isOver()) {
-            Attack attack1 = chooseAttack(player1, COLOR_BLUE);
-            Attack attack2 = chooseAttack(player2, COLOR_ORANGE);
+            // Players 1 choose actions
+            ActionType action1 = chooseAction(player1, COLOR_BLUE);
+            Attack attack1 = null;
+            Integer switchIndex1 = null;
+            switch (action1) {
+                case ATTACK:
+                    attack1 = chooseAttack(player1, COLOR_BLUE);
+                    break;
+                case SWITCH:
+                    switchIndex1 = chooseMonster(player1, COLOR_BLUE);
+                    break;
+                case ITEM:
+                    System.out.println("La fonctionnalité d'objet n'est pas encore implémentée.");
+                    break;
+            }
 
-            if (player1.getCurrentMonster().getSpeed() >= player2.getCurrentMonster().getSpeed()) {
-                displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster())); 
-                if (player2.getCurrentMonster().getCurrentHealth() > 0) {
+            // Player 2 choose actions
+            ActionType action2 = chooseAction(player2, COLOR_ORANGE);
+            Attack attack2 = null;
+            Integer switchIndex2 = null;
+            switch (action2) {
+                case ATTACK:
+                    attack2 = chooseAttack(player2, COLOR_ORANGE);
+                    break;
+                case SWITCH:
+                    switchIndex2 = chooseMonster(player2, COLOR_ORANGE);
+                    break;
+                case ITEM:
+                    System.out.println("La fonctionnalité d'objet n'est pas encore implémentée.");
+                    break;
+            }
+
+            // Perform switch actions
+            if (action1 == ActionType.SWITCH) {
+                switchMonster(player1, switchIndex1, COLOR_BLUE);
+            }
+            if (action2 == ActionType.SWITCH) {
+                switchMonster(player2, switchIndex2, COLOR_ORANGE);
+            }
+
+            // Perform Item actions
+            //TODO : Implement Item actions
+
+            // Perform attack actions
+            if (attack1 != null && attack2 != null) {
+                // Both players chose to attack
+                if (player1.getCurrentMonster().getSpeed() >= player2.getCurrentMonster().getSpeed()) {
+                    displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster())); 
+                    if (player2.getCurrentMonster().getCurrentHealth() > 0) {
+                        displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
+                    }
+                    else {
+                        displayMonsterKO(player2.getCurrentMonster(), COLOR_ORANGE);
+                    }
+                } else {
                     displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
+                    if (player1.getCurrentMonster().getCurrentHealth() > 0) {
+                        displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster()));
+                    }
+                    else {
+                        displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
+                    }
                 }
-            } else {
+            } else if (attack1 != null) {
+                // Only player 1 attacks
+                displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster()));
+                if (player2.getCurrentMonster().getCurrentHealth() <= 0) {
+                    displayMonsterKO(player2.getCurrentMonster(), COLOR_ORANGE);
+                }
+            } else if (attack2 != null) {
+                // Only player 2 attacks
                 displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
-                if (player1.getCurrentMonster().getCurrentHealth() > 0) {
-                    displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster()));
+                if (player1.getCurrentMonster().getCurrentHealth() <= 0) {
+                    displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
                 }
             }
             displayCurrentStatus();
+
+            // Check for KO and switch monsters if needed
+            if (player1.getCurrentMonster().getCurrentHealth() <= 0 && player1.hasUsableMonsters()) {
+                switchMonster(player1, chooseMonster(player1, COLOR_BLUE), COLOR_BLUE);
+            }
+            if (player2.getCurrentMonster().getCurrentHealth() <= 0 && player2.hasUsableMonsters()) {
+                switchMonster(player2, chooseMonster(player2, COLOR_ORANGE), COLOR_ORANGE);
+            }
         }
         displayWinner();
+    }
+
+    private ActionType chooseAction(Player player, String color) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n" + color + player.getName() + ", choisissez une action:" + COLOR_RESET);
+        System.out.println("1. Attaquer");
+        System.out.println("2. Changer de monstre");
+        System.out.println("3. Utiliser un objet");
+
+        int choice = -1;
+        while (choice < 1 || choice > 3) {
+            System.out.print("Votre choix (1-3): ");
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                if (choice < 1 || choice > 3) {
+                    System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et 3");
+                }
+            } else {
+                System.out.println("Veuillez entrer un nombre valide.");
+                scanner.next(); 
+            }
+        }
+
+        switch (choice) {
+            case 1:
+                return ActionType.ATTACK;
+            case 2:
+                return ActionType.SWITCH;
+            case 3:
+                return ActionType.ITEM;
+            default:
+                return ActionType.ATTACK; 
+        }
+    }
+
+    private void switchMonster(Player player, int monsterIndex, String color) {
+        player.currentMonsterIndex = monsterIndex;
+        System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
+    }
+
+    private int chooseMonster(Player player, String color) {
+        Scanner scanner = new Scanner(System.in);
+        List<Monster> availableMonsters = player.getAvailableMonsters();
+
+        System.out.println("\n" + color + player.getName() + ", choisissez un monstre pour remplacer " + player.getCurrentMonster().getName() + ":" + COLOR_RESET);
+        for (int i = 0; i < availableMonsters.size(); i++) {
+            Monster monster = availableMonsters.get(i);
+            System.out.println((i + 1) + ". " + monster.getName() + 
+                              " (HP: " + monster.getCurrentHealth() + "/" + monster.getHealth() + ")");
+        }
+
+        int choice = -1;
+        while (choice < 1 || choice > availableMonsters.size()) {
+            System.out.print("Votre choix (1-" + availableMonsters.size() + "): ");
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                if (choice < 1 || choice > availableMonsters.size()) {
+                    System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + availableMonsters.size());
+                }
+            } else {
+                System.out.println("Veuillez entrer un nombre valide.");
+                scanner.next(); 
+            }
+        }
+
+        return choice - 1;
+    }
+
+    public void displayMonsterKO(Monster monster, String color) {
+        System.out.println(color + "\n" + monster.getName() + " est K.O. !" + COLOR_RESET);
     }
 
     private void displayAttackAction(HashMap<String, String> attackResult) {
