@@ -1,9 +1,6 @@
 package com.esiea.pootp;
 
-import java.util.Scanner;
-
 import com.esiea.pootp.Battle.Battle;
-import com.esiea.pootp.Player.Player;
 
 
 public class EsieamonExecutable {
