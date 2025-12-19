@@ -513,36 +513,153 @@ EndAttack
 
 
 
+
+
+
+Attack
+Name Charge
+Type Normal
+Power 35
+NbUse 35
+Fail 0.03
+EndAttack
+
+Attack
+Name Griffe
+Type Normal
+Power 40
+NbUse 35
+Fail 0.05
+EndAttack
+
+Attack
+Name Coup d'Boule
+Type Normal
+Power 70
+NbUse 15
+Fail 0.05
+EndAttack
+
+Attack
+Name Tranche
+Type Normal
+Power 70
+NbUse 20
+Fail 0.05
+EndAttack
+
+Attack
+Name Ultralaser
+Type Normal
+Power 150
+NbUse 5
+Fail 0.1
+EndAttack
+
+Attack
+Name Destruction
+Type Normal
+Power 200
+NbUse 5
+Fail 0.05
+EndAttack
+
+Attack
+Name Vive-Attaque
+Type Normal
+Power 40
+NbUse 30
+Fail 0.02
+EndAttack
+
+Attack
+Name Combo-Griffe
+Type Normal
+Power 18
+NbUse 15
+Fail 0.15
+EndAttack
+
+Attack
+Name Ecrasement
+Type Normal
+Power 65
+NbUse 20
+Fail 0.05
+EndAttack
+
+Attack
+Name Megapoings
+Type Normal
+Power 80
+NbUse 20
+Fail 0.15
+EndAttack
+
+Attack
+Name Sacrifice
+Type Normal
+Power 120
+NbUse 15
+Fail 0.1
+EndAttack
+
+Attack
+Name Belier
+Type Normal
+Power 90
+NbUse 20
+Fail 0.05
+EndAttack
+
+
+
+
+
+
+
+
+
+
+
+
 AttackMonster
 Monster Pikachu
 Attack Eclair
 Attack Eclair de Tonnerre
-Attack Fatal Foudre
-Attack Etincelle
+Attack Vive-Attaque
+Attack Charge
 EndAttackMonster
 
 AttackMonster
 Monster Raichu
 Attack Eclair de Tonnerre
 Attack Fatal Foudre
-Attack Eclair Fou
-Attack Electacle
+Attack Coup d'Boule
+Attack Tranche
 EndAttackMonster
 
 AttackMonster
 Monster Voltorbe
 Attack Eclair
 Attack Etincelle
-Attack Eclair de Tonnerre
-Attack Fatal Foudre
+Attack Charge
+Attack Vive-Attaque
 EndAttackMonster
+
+
+
+
+
+
+
 
 AttackMonster
 Monster Magmar
 Attack Flammeche
 Attack Lance-flammes
 Attack Deflagration
-Attack Roue de Feu
+Attack Megapoings
 EndAttackMonster
 
 AttackMonster
@@ -550,7 +667,7 @@ Monster Pyroli
 Attack Lance-flammes
 Attack Deflagration
 Attack Canicule
-Attack Boutefeu
+Attack Belier
 EndAttackMonster
 
 AttackMonster
@@ -558,7 +675,7 @@ Monster Salameche
 Attack Flammeche
 Attack Roue de Feu
 Attack Lance-flammes
-Attack Deflagration
+Attack Griffe
 EndAttackMonster
 
 
@@ -570,15 +687,15 @@ Monster Carapuce
 Attack Pistolet a O
 Attack Aqua-Jet
 Attack Surf
-Attack Cascade
+Attack Charge
 EndAttackMonster
 
 AttackMonster
 Monster Leviator
 Attack Surf
 Attack Hydrocanon
-Attack Cascade
-Attack Hydroqueue
+Attack Belier
+Attack Sacrifice
 EndAttackMonster
 
 AttackMonster
@@ -586,7 +703,7 @@ Monster Tentacool
 Attack Pistolet a O
 Attack Aqua-Jet
 Attack Surf
-Attack Hydrocanon
+Attack Ecrasement
 EndAttackMonster
 
 
@@ -600,15 +717,15 @@ Monster Onix
 Attack Jet-Pierres
 Attack Tunnel
 Attack Seisme
-Attack Telluriforce
+Attack Coup d'Boule
 EndAttackMonster
 
 AttackMonster
 Monster Rhinocorne
 Attack Seisme
 Attack Telluriforce
-Attack Piege de Roc
-Attack Abime
+Attack Charge
+Attack Megapoings
 EndAttackMonster
 
 AttackMonster
@@ -616,7 +733,7 @@ Monster Sabelette
 Attack Jet-Pierres
 Attack Piege de Roc
 Attack Tunnel
-Attack Seisme
+Attack Griffe
 EndAttackMonster
 
 
@@ -629,15 +746,15 @@ Monster Bulbizarre
 Attack Fouet Lianes
 Attack Tranch-Herbe
 Attack Vampigraine
-Attack Lance-Soleil
+Attack Charge
 EndAttackMonster
 
 AttackMonster
 Monster Florizarre
 Attack Lance-Soleil
 Attack Tempete Verte
-Attack Vampigraine
-Attack Megafouet
+Attack Belier
+Attack Sacrifice
 EndAttackMonster
 
 AttackMonster
@@ -645,7 +762,7 @@ Monster Mystherbe
 Attack Fouet Lianes
 Attack Tranch-Herbe
 Attack Vampigraine
-Attack Tempete Verte
+Attack Vive-Attaque
 EndAttackMonster
 
 
@@ -658,15 +775,15 @@ Monster Aspicot
 Attack Piqure
 Attack Dard-Venin
 Attack Plaie-Croix
-Attack Bourdon
+Attack Griffe
 EndAttackMonster
 
 AttackMonster
 Monster Dardargnan
 Attack Plaie-Croix
 Attack Bourdon
-Attack Megacorne
-Attack Survinsecte
+Attack Tranche
+Attack Megapoings
 EndAttackMonster
 
 AttackMonster
@@ -674,5 +791,5 @@ Monster Papilusion
 Attack Piqure
 Attack Dard-Venin
 Attack Plaie-Croix
-Attack Bourdon
+Attack Vive-Attaque
 EndAttackMonster
