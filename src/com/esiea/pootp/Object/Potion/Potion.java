@@ -49,27 +49,27 @@ public class Potion extends ObjectMonster {
             }
             case ATTACK -> {
                 int boostAmount = switch (potionEfficiency) {
-                    case NORMAL -> 5;
-                    case SUPER -> 10;
-                    case HYPER -> 20;
+                    case NORMAL -> 15;
+                    case SUPER -> 25;
+                    case HYPER -> 40;
                 };
                 monster.boostAttack(boostAmount);
                 System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Increased attack by " + boostAmount + ".");
             }
             case DEFENSE -> {
                 int boostAmount = switch (potionEfficiency) {
-                    case NORMAL -> 5;
-                    case SUPER -> 10;
-                    case HYPER -> 20;
+                    case NORMAL -> 15;
+                    case SUPER -> 25;
+                    case HYPER -> 40;
                 };
                 monster.boostDefense(boostAmount);
                 System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Increased defense by " + boostAmount + ".");
             }
             case SPEED -> {
                 int boostAmount = switch (potionEfficiency) {
-                    case NORMAL -> 5;
-                    case SUPER -> 10;
-                    case HYPER -> 20;
+                    case NORMAL -> 15;
+                    case SUPER -> 25;
+                    case HYPER -> 40;
                 };
                 monster.boostSpeed(boostAmount);
                 System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Increased speed by " + boostAmount + ".");
