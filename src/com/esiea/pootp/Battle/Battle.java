@@ -72,8 +72,9 @@ public class Battle {
                              " SPD:" + monster.getSpeed() +
                              " (" + monster.attacks.size() + " attaques)");
         }
-        for (int i = 0; i < teamSize; i++) {
-            System.out.print("Choisissez le monstre " + (i + 1) + " (1-" + availableMonsters.size() + ") : ");
+        int nbMonstersChoosen = 0;
+        while (nbMonstersChoosen < teamSize) {
+            System.out.print("Choisissez le monstre " + (nbMonstersChoosen + 1) + " (1-" + availableMonsters.size() + ") : ");
             int choice = scanner.nextInt() - 1;
             scanner.nextLine();
             
@@ -85,7 +86,12 @@ public class Battle {
                     player.monsters.add(monsterCopy);
                     System.out.println("✓ " + monsterCopy.getName() + " ajouté avec " + 
                                      monsterCopy.attacks.size() + " attaques !");
+                    nbMonstersChoosen++;
                 }
+            }
+
+            else {
+                System.out.println("Choix invalide. Veuillez réessayer.");
             }
         }
     }
@@ -210,18 +216,35 @@ public class Battle {
 
     private ActionType chooseAction(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
+        boolean canSwitch = player.getAvailableMonstersMap().size() > 1;
+        boolean hasItems = !player.getInventory().isEmpty();
+
         System.out.println("\n" + color + player.getName() + ", choisissez une action:" + COLOR_RESET);
         System.out.println("1. Attaquer");
-        System.out.println("2. Changer de monstre");
-        System.out.println("3. Utiliser un objet");
+        if (canSwitch) {
+            System.out.println("2. Changer de monstre");
+        } else {
+            System.out.println("2. Changer de monstre (indisponible - un seul monstre en vie)");
+        }
+        if (hasItems) {
+            System.out.println("3. Utiliser un objet");
+        } else {
+            System.out.println("3. Utiliser un objet (indisponible - aucun objet)");
+        }
 
         int choice = -1;
-        while (choice < 1 || choice > 3) {
+        while (choice < 1 || choice > 3 || (choice == 2 && !canSwitch) || (choice == 3 && !hasItems)) {
             System.out.print("Votre choix (1-3): ");
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
                 if (choice < 1 || choice > 3) {
                     System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et 3");
+                } else if (choice == 2 && !canSwitch) {
+                    System.out.println("Vous ne pouvez pas changer de monstre : un seul monstre encore en vie.");
+                    choice = -1;
+                } else if (choice == 3 && !hasItems) {
+                    System.out.println("Vous n'avez aucun objet !");
+                    choice = -1;
                 }
             } else {
                 System.out.println("Veuillez entrer un nombre valide.");
@@ -322,6 +345,10 @@ public class Battle {
         String damage = attackResult.get("damage");
         String effectiveness = attackResult.get("effectiveness");
 
+        if (attackResult.size() == 0) {
+            return;
+        }
+
         System.out.println("\u001B[31m\n" + attackerName + " utilise " + attackName + " sur " + defenderName + " !");
         System.out.println("Cela inflige " + damage + " points de dégâts. " + effectiveness + "\u001B[0m");
     }
@@ -340,23 +367,37 @@ public class Battle {
         }
 
         else {
+            // Filter available attacks
+            List<AttackMonster> availableAttacks = new ArrayList<>();
+            for (AttackMonster attack : attacks) {
+                if (attack.getNbUses() > 0) {
+                    availableAttacks.add(attack);
+                }
+            }
+
             // Display the list of attacks
             System.out.println("\n" + color + player.getName() +", une attaque pour " + currentMonster.getName() + ":" + COLOR_RESET);
+            int displayIndex = 1;
             for (int i = 0; i < attacks.size(); i++) {
                 AttackMonster attack = attacks.get(i);
-                System.out.println((i + 1) + ". " + attack.getName() + 
-                                " (Puissance: " + attack.getPower() + 
-                                ", PP: " + attack.getNbUses() + "/" + attack.getMaxUses() + ")");
+                if (attack.getNbUses() > 0) {
+                    System.out.println(displayIndex + ". " + attack.getName() + 
+                                    " (Puissance: " + attack.getPower() + 
+                                    ", PP: " + attack.getNbUses() + "/" + attack.getMaxUses() + ")");
+                    displayIndex++;
+                } else {
+                    System.out.println("   " + attack.getName() + " (indisponible - PP: 0/" + attack.getMaxUses() + ")");
+                }
             }
             
             // Get user choice
             int choice = -1;
-            while (choice < 1 || choice > attacks.size()) {
-                System.out.print("Votre choix (1-" + attacks.size() + "): ");
+            while (choice < 1 || choice > availableAttacks.size()) {
+                System.out.print("Votre choix (1-" + availableAttacks.size() + "): ");
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
-                    if (choice < 1 || choice > attacks.size()) {
-                        System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + attacks.size());
+                    if (choice < 1 || choice > availableAttacks.size()) {
+                        System.out.println("Choix invalide. Veuillez entrer un nombre entre 1 et " + availableAttacks.size());
                     }
                 } else {
                     System.out.println("Veuillez entrer un nombre valide.");
@@ -364,7 +405,7 @@ public class Battle {
                 }
             }
             
-            return attacks.get(choice - 1);
+            return availableAttacks.get(choice - 1);
         }
     }
 }

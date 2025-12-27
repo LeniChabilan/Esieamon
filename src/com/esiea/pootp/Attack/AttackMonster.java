@@ -23,7 +23,6 @@ public class AttackMonster extends Attack {
     public HashMap<String, String> performAttack(Monster attacker, Monster defender) {
         HashMap<String, String> result = new HashMap<>();
         if (nbUses <= 0) {
-            System.out.println(attacker.getName() + " cannot use " + name + " anymore!");
             return result;
         }
         nbUses--;
