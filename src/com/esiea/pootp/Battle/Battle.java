@@ -189,6 +189,28 @@ public class Battle {
                 useItem(player2, itemIndex2, COLOR_ORANGE);
             }
 
+            // Perform Status effects before attacks
+            HashMap<String, String> statusEffect1 = player1.getCurrentMonster().getStatus().performStatus(player1.getCurrentMonster());
+            HashMap<String, String> statusEffect2 = player2.getCurrentMonster().getStatus().performStatus(player2.getCurrentMonster());
+
+            if (statusEffect1.containsKey("statusCured") && Boolean.parseBoolean(statusEffect1.get("statusCured"))) {
+                System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " n'est plus " + player1.getCurrentMonster().getStatus().getName() + " !" + COLOR_RESET);
+            }
+            if (statusEffect2.containsKey("statusCured") && Boolean.parseBoolean(statusEffect2.get("statusCured"))) {
+                System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " n'est plus " + player2.getCurrentMonster().getStatus().getName() + " !" + COLOR_RESET);
+            }
+
+            boolean canAttack1 = !statusEffect1.containsKey("attackAble") || Boolean.parseBoolean(statusEffect1.get("attackAble"));
+            boolean canAttack2 = !statusEffect2.containsKey("attackAble") || Boolean.parseBoolean(statusEffect2.get("attackAble"));
+            if (attack1 != null && !canAttack1) {
+                System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " est " + player1.getCurrentMonster().getStatus().getName() + " et ne peut pas attaquer !" + COLOR_RESET);
+                attack1 = null;
+            }
+            if (attack2 != null && !canAttack2) {
+                System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " est " + player2.getCurrentMonster().getStatus().getName() + " et ne peut pas attaquer !" + COLOR_RESET);
+                attack2 = null;
+            }
+
             // Perform attack actions
             if (attack1 != null && attack2 != null) {
                 // Both players chose to attack

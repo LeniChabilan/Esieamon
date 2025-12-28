@@ -17,7 +17,7 @@ public class FireMonster extends Monster {
     @Override
     public boolean applyStatus(Monster defender) {
         if (Math.random() < this.burnChance) {
-            if (defender.getStatus().getName() == "Normal" || defender.getStatus().getName() == "Brûlé") {
+            if (defender.getStatus().getName() == "Normal") {
                 defender.setStatus(new BurnedStatus());
                 return true;
             }

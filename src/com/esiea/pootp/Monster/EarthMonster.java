@@ -17,7 +17,7 @@ public class EarthMonster extends Monster {
     @Override
     public boolean applyStatus(Monster defender) {
         if (Math.random() < this.burrowChance) {
-            if (defender.getStatus().getName() == "Normal" || defender.getStatus().getName() == "Enterré") {
+            if (defender.getStatus().getName() == "Normal") {
                 defender.setStatus(new BurrowedStatus());
                 return true;   
             }

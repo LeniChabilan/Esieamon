@@ -23,9 +23,11 @@ public class InsectMonster extends NatureMonster {
         super.applyStatus(defender);
         nbAttacksSpe++;
         if (nbAttacksSpe >= 3) {
-            nbAttacksSpe = 0;
-            defender.setStatus(new PoisonedStatus());
-            return true;
+            if (defender.getStatus().getName() == "Normal") {
+                defender.setStatus(new PoisonedStatus());
+                nbAttacksSpe = 0;
+                return true;
+            }
         }
         return false;
     }
