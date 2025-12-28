@@ -190,14 +190,21 @@ public class Battle {
             }
 
             // Perform Status effects before attacks
-            HashMap<String, String> statusEffect1 = player1.getCurrentMonster().getStatus().performStatus(player1.getCurrentMonster());
-            HashMap<String, String> statusEffect2 = player2.getCurrentMonster().getStatus().performStatus(player2.getCurrentMonster());
+            HashMap<String, String> statusEffect1 = player1.getCurrentMonster().getStatus().performStatus(player1.getCurrentMonster(), ground);
+            HashMap<String, String> statusEffect2 = player2.getCurrentMonster().getStatus().performStatus(player2.getCurrentMonster(), ground);
 
             if (statusEffect1.containsKey("statusCured") && Boolean.parseBoolean(statusEffect1.get("statusCured"))) {
                 System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " n'est plus " + player1.getCurrentMonster().getStatus().getName() + " !" + COLOR_RESET);
             }
             if (statusEffect2.containsKey("statusCured") && Boolean.parseBoolean(statusEffect2.get("statusCured"))) {
                 System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " n'est plus " + player2.getCurrentMonster().getStatus().getName() + " !" + COLOR_RESET);
+            }
+
+            if (statusEffect1.containsKey("statusEffect")) {
+                System.out.println("\n" + COLOR_BLUE + statusEffect1.get("statusEffect") + COLOR_RESET);
+            }
+            if (statusEffect2.containsKey("statusEffect")) {
+                System.out.println("\n" + COLOR_ORANGE + statusEffect2.get("statusEffect") + COLOR_RESET);
             }
 
             boolean canAttack1 = !statusEffect1.containsKey("attackAble") || Boolean.parseBoolean(statusEffect1.get("attackAble"));

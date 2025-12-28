@@ -69,6 +69,10 @@ public abstract class Monster {
         return attacks;
     }
 
+    public void setCurrentHealth(int currentHealth) {
+        this.currentHealth = currentHealth;
+    }
+
     public void heal(int amount) {
         currentHealth += amount;
         if (currentHealth > health) {

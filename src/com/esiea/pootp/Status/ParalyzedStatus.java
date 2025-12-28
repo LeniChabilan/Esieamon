@@ -2,6 +2,7 @@ package com.esiea.pootp.Status;
 
 import java.util.HashMap;
 import com.esiea.pootp.Monster.Monster;
+import com.esiea.pootp.Ground.Ground;
 
 public class ParalyzedStatus extends Status {
     int nbTurnsParalyzed = 0;
@@ -11,7 +12,7 @@ public class ParalyzedStatus extends Status {
     }
 
     @Override
-    public HashMap<String, String> performStatus(Monster monster) {
+    public HashMap<String, String> performStatus(Monster monster, Ground ground) {
         HashMap<String, String> result = new HashMap<>();
 
         nbTurnsParalyzed++;
