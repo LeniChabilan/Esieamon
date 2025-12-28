@@ -22,6 +22,8 @@ public class AttackMonster extends Attack {
     @Override
     public HashMap<String, String> performAttack(Monster attacker, Monster defender) {
         HashMap<String, String> result = new HashMap<>();
+
+        // Check for available uses
         if (nbUses <= 0) {
             return result;
         }
@@ -37,12 +39,19 @@ public class AttackMonster extends Attack {
             return result;
         }
 
+        // Handle status application
+        if (this.type != AttackType.NORMAL) {
+            boolean statusApplied = attacker.applyStatus(defender);
+            if (statusApplied) {
+                result.put("status", defender.getName() + " est maintenant " + defender.getStatus().getName() + " !");
+            }
+        }
+
         // Calculate damage
         double coef = 0.85 + Math.random() * 0.15;
         double typeEffectiveness = getTypeEffectiveness(this.type, defender);
         double base = ((11.0 * this.power * attacker.getPower()) / (25.0 * defender.getDefense())) + 2.0;
         int damage = (int) Math.round(base * coef * typeEffectiveness);
-
 
         // Apply damage
         defender.currentHealth -= damage;

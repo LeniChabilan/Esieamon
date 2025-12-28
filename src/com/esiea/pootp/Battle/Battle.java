@@ -50,8 +50,19 @@ public class Battle {
 
     public void displayCurrentStatus() {
         System.out.println("\nStatut actuel des monstres:");
-        System.out.println(COLOR_BLUE + player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP" + COLOR_RESET);
-        System.out.println(COLOR_ORANGE + player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP" + COLOR_RESET);
+        String player1Status = player1.getCurrentMonster().getStatus().getName();
+        String player1Line = COLOR_BLUE + player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP";
+        if (!player1Status.equals("Normal")) {
+            player1Line += " (" + player1Status + ")";
+        }
+        System.out.println(player1Line + COLOR_RESET);
+        
+        String player2Status = player2.getCurrentMonster().getStatus().getName();
+        String player2Line = COLOR_ORANGE + player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP";
+        if (!player2Status.equals("Normal")) {
+            player2Line += " (" + player2Status + ")";
+        }
+        System.out.println(player2Line + COLOR_RESET);
     }
 
 
@@ -344,6 +355,7 @@ public class Battle {
         String attackName = attackResult.get("attackName");
         String damage = attackResult.get("damage");
         String effectiveness = attackResult.get("effectiveness");
+        String status = attackResult.get("status");
 
         if (attackResult.size() == 0) {
             return;
@@ -351,6 +363,9 @@ public class Battle {
 
         System.out.println("\u001B[31m\n" + attackerName + " utilise " + attackName + " sur " + defenderName + " !");
         System.out.println("Cela inflige " + damage + " points de dégâts. " + effectiveness + "\u001B[0m");
+        if (status != null) {
+            System.out.println("\u001B[35m" + status + "\u001B[0m");
+        }
     }
 
     public Attack chooseAttack(Player player, String color) {

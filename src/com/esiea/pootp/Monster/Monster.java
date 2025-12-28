@@ -3,6 +3,8 @@ package com.esiea.pootp.Monster;
 import java.util.List;
 import java.util.ArrayList;
 import com.esiea.pootp.Attack.AttackMonster;
+import com.esiea.pootp.Status.NormalStatus;
+import com.esiea.pootp.Status.Status;
 
 public abstract class Monster {
     public String name;
@@ -12,6 +14,7 @@ public abstract class Monster {
     public int speed;
     public int currentHealth;
     public List<AttackMonster> attacks;
+    private Status status;
 
     public Monster(String name, int health, int power, int defense, int speed) {
         this.name = name;
@@ -21,6 +24,7 @@ public abstract class Monster {
         this.speed = speed;
         this.currentHealth = health;
         this.attacks = new ArrayList<>();
+        this.status = new NormalStatus();
     }
 
     public boolean hasAvailableAttacks() {
@@ -56,6 +60,10 @@ public abstract class Monster {
         return currentHealth;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
     public List<AttackMonster> getAttacks() {
         return attacks;
     }
@@ -77,5 +85,13 @@ public abstract class Monster {
 
     public void boostSpeed(int amount) {
         speed += amount;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public boolean applyStatus(Monster defender) {
+        return false;
     }
 }
