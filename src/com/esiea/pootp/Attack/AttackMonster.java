@@ -1,5 +1,6 @@
 package com.esiea.pootp.Attack;
 
+import com.esiea.pootp.Battle.*;
 import com.esiea.pootp.Monster.*;
 import java.util.HashMap;
 
@@ -20,7 +21,7 @@ public class AttackMonster extends Attack {
     }
 
     @Override
-    public HashMap<String, String> performAttack(Monster attacker, Monster defender) {
+    public HashMap<String, String> performAttack(Monster attacker, Monster defender, Battle battle) {
         HashMap<String, String> result = new HashMap<>();
 
         // Check for available uses
@@ -39,11 +40,16 @@ public class AttackMonster extends Attack {
             return result;
         }
 
-        // Handle status application
+        // Handle status and ground application
         if (this.type != AttackType.NORMAL) {
             boolean statusApplied = attacker.applyStatus(defender);
             if (statusApplied) {
                 result.put("status", defender.getName() + " est maintenant " + defender.getStatus().getName() + " !");
+            }
+
+            boolean groundApplied = attacker.applyGround(battle);
+            if (groundApplied) {
+                result.put("ground", "Le terrain est maintenant " + battle.getGround().getName() + " !");
             }
         }
 

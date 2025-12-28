@@ -3,6 +3,7 @@ package com.esiea.pootp.Attack;
 import java.util.HashMap;
 
 import com.esiea.pootp.Monster.Monster;
+import com.esiea.pootp.Battle.Battle;
 
 public abstract class Attack {
     protected String name;
@@ -15,7 +16,7 @@ public abstract class Attack {
         return name;
     }
 
-    public HashMap<String, String> performAttack(Monster attacker, Monster defender) {
+    public HashMap<String, String> performAttack(Monster attacker, Monster defender, Battle battle) {
         return new HashMap<>();
     }
 }

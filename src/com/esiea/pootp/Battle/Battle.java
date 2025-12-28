@@ -7,6 +7,7 @@ import com.esiea.pootp.Attack.AttackStruggle;
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Battle.ActionType;
 import com.esiea.pootp.Object.ObjectMonster;
+import com.esiea.pootp.Ground.*;
 
 import java.util.List;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class Battle {
     public Player player2;
     private Parser parser;
     private int teamSize = 3;
+    private Ground ground = new NormalGround();
 
     private static final String COLOR_BLUE = "\u001B[94m";
     private static final String COLOR_ORANGE = "\u001B[33m";
@@ -32,6 +34,14 @@ public class Battle {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setGround(Ground ground) {
+        this.ground = ground;
+    }
+
+    public Ground getGround() {
+        return this.ground;
     }
 
     public boolean isOver() {
@@ -49,7 +59,7 @@ public class Battle {
     }
 
     public void displayCurrentStatus() {
-        System.out.println("\nStatut actuel des monstres:");
+        System.out.println("\nStatut actuel des monstres: (Terrain: " + ground.getName() + ")");
         String player1Status = player1.getCurrentMonster().getStatus().getName();
         String player1Line = COLOR_BLUE + player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP";
         if (!player1Status.equals("Normal")) {
@@ -183,17 +193,17 @@ public class Battle {
             if (attack1 != null && attack2 != null) {
                 // Both players chose to attack
                 if (player1.getCurrentMonster().getSpeed() >= player2.getCurrentMonster().getSpeed()) {
-                    displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster())); 
+                    displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster(), this)); 
                     if (player2.getCurrentMonster().getCurrentHealth() > 0) {
-                        displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
+                        displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster(), this));
                     }
                     else {
                         displayMonsterKO(player2.getCurrentMonster(), COLOR_ORANGE);
                     }
                 } else {
-                    displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
+                    displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster(), this));
                     if (player1.getCurrentMonster().getCurrentHealth() > 0) {
-                        displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster()));
+                        displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster(), this));
                     }
                     else {
                         displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
@@ -201,13 +211,13 @@ public class Battle {
                 }
             } else if (attack1 != null) {
                 // Only player 1 attacks
-                displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster()));
+                displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster(), this));
                 if (player2.getCurrentMonster().getCurrentHealth() <= 0) {
                     displayMonsterKO(player2.getCurrentMonster(), COLOR_ORANGE);
                 }
             } else if (attack2 != null) {
                 // Only player 2 attacks
-                displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster()));
+                displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster(), this));
                 if (player1.getCurrentMonster().getCurrentHealth() <= 0) {
                     displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
                 }
@@ -356,6 +366,7 @@ public class Battle {
         String damage = attackResult.get("damage");
         String effectiveness = attackResult.get("effectiveness");
         String status = attackResult.get("status");
+        String ground = attackResult.get("ground");
 
         if (attackResult.size() == 0) {
             return;
@@ -365,6 +376,9 @@ public class Battle {
         System.out.println("Cela inflige " + damage + " points de dégâts. " + effectiveness + "\u001B[0m");
         if (status != null) {
             System.out.println("\u001B[35m" + status + "\u001B[0m");
+        }
+        if (ground != null) {
+            System.out.println("\u001B[36m" + ground + "\u001B[0m");
         }
     }
 

@@ -3,6 +3,7 @@ package com.esiea.pootp.Monster;
 import java.util.List;
 import java.util.ArrayList;
 import com.esiea.pootp.Attack.AttackMonster;
+import com.esiea.pootp.Battle.Battle;
 import com.esiea.pootp.Status.NormalStatus;
 import com.esiea.pootp.Status.Status;
 
@@ -92,6 +93,10 @@ public abstract class Monster {
     }
 
     public boolean applyStatus(Monster defender) {
+        return false;
+    }
+
+    public boolean applyGround(Battle battle) {
         return false;
     }
 }

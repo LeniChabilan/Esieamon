@@ -1,5 +1,7 @@
 package com.esiea.pootp.Monster;
 
+import com.esiea.pootp.Status.BurrowedStatus;
+
 public class EarthMonster extends Monster {
     private double burrowChance;
 
@@ -11,4 +13,16 @@ public class EarthMonster extends Monster {
     public double getBurrowChance() {
         return burrowChance;
     }
+
+    @Override
+    public boolean applyStatus(Monster defender) {
+        if (Math.random() < this.burrowChance) {
+            if (defender.getStatus().getName() == "Normal" || defender.getStatus().getName() == "Enterré") {
+                defender.setStatus(new BurrowedStatus());
+                return true;   
+            }
+        }
+        return false;
+    }
+
 }
