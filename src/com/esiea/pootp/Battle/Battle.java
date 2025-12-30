@@ -189,7 +189,7 @@ public class Battle {
                 useItem(player2, itemIndex2, COLOR_ORANGE);
             }
 
-            // Perform Status effects before attacks
+            // Perform Status effects
             HashMap<String, String> statusEffect1 = player1.getCurrentMonster().getStatus().performStatus(player1.getCurrentMonster(), ground);
             HashMap<String, String> statusEffect2 = player2.getCurrentMonster().getStatus().performStatus(player2.getCurrentMonster(), ground);
 
@@ -207,6 +207,7 @@ public class Battle {
                 System.out.println("\n" + COLOR_ORANGE + statusEffect2.get("statusEffect") + COLOR_RESET);
             }
 
+            // Check if monsters can attack after status effects
             boolean canAttack1 = !statusEffect1.containsKey("attackAble") || Boolean.parseBoolean(statusEffect1.get("attackAble"));
             boolean canAttack2 = !statusEffect2.containsKey("attackAble") || Boolean.parseBoolean(statusEffect2.get("attackAble"));
             if (attack1 != null && !canAttack1) {
@@ -216,6 +217,26 @@ public class Battle {
             if (attack2 != null && !canAttack2) {
                 System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " est " + player2.getCurrentMonster().getStatus().getName() + " et ne peut pas attaquer !" + COLOR_RESET);
                 attack2 = null;
+            }
+
+            // Perform Special Effects
+            String specialEffect1 = player1.getCurrentMonster().applySpecialEffect(this);
+            String specialEffect2 = player2.getCurrentMonster().applySpecialEffect(this);
+            if (!specialEffect1.isEmpty()) {
+                System.out.println(COLOR_BLUE + specialEffect1 + COLOR_RESET);
+            }
+            if (!specialEffect2.isEmpty()) {
+                System.out.println(COLOR_ORANGE + specialEffect2 + COLOR_RESET);
+            }
+
+            // Perform Passive Effects
+            String passiveEffect1 = player1.getCurrentMonster().applyPassiveEffect(this);
+            String passiveEffect2 = player2.getCurrentMonster().applyPassiveEffect(this);
+            if (!passiveEffect1.isEmpty()) {
+                System.out.println(COLOR_BLUE + passiveEffect1 + COLOR_RESET);
+            }
+            if (!passiveEffect2.isEmpty()) {
+                System.out.println(COLOR_ORANGE + passiveEffect2 + COLOR_RESET);
             }
 
             // Perform attack actions

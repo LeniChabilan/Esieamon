@@ -1,5 +1,9 @@
 package com.esiea.pootp.Monster;
 
+import com.esiea.pootp.Battle.Battle;
+import com.esiea.pootp.Ground.FloodedGround;
+import com.esiea.pootp.Status.NormalStatus;
+
 public class GrassMonster extends NatureMonster {
     private double healChance;
 
@@ -10,6 +14,18 @@ public class GrassMonster extends NatureMonster {
 
     public double getHealChance() {
         return healChance;
+    }
+
+    @Override
+    public String applySpecialEffect(Battle battle) {
+        double randomValue = Math.random();
+        if (randomValue < healChance) {
+            if (this.getStatus().getName() != "Normal") {
+                this.setStatus(new NormalStatus());
+                return this.getName() + " est guéri de son statut grâce au terrain inondé !";
+            }
+        }
+        return "";
     }
     
 }
