@@ -19,7 +19,15 @@ public class BattleTerminal extends Battle {
         super();
     }
 
-    @Override
+    public boolean isOver() {
+        return !player1.hasUsableMonsters() || !player2.hasUsableMonsters();
+    }
+
+    protected void switchMonster(Player player, int monsterIndex, String color) {
+        player.currentMonsterIndex = monsterIndex;
+        System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
+    }
+
     public void displayWinner() {
         if (player1.hasUsableMonsters()) {
             System.out.println("\nLe joueur " + player1.name + " a gagné la bataille !");
@@ -30,7 +38,6 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    @Override
     public void displayCurrentStatus() {
         System.out.println("\nStatut actuel des monstres: (Terrain: " + ground.getName() + ")");
         String player1Status = player1.getCurrentMonster().getStatus().getName();
@@ -48,12 +55,10 @@ public class BattleTerminal extends Battle {
         System.out.println(player2Line + COLOR_RESET);
     }
 
-    @Override
     protected void displayMonsterSwitch(Player player, String color) {
         System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
     }
 
-    @Override
     protected void selectMonstersForPlayer(Player player, Parser parser, String color) {
         Scanner scanner = new Scanner(System.in);
         List<Monster> availableMonsters = parser.getAvailableMonsters();
@@ -93,7 +98,6 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    @Override
     public void startBattle() {
         // Player setup
         Scanner scanner = new Scanner(System.in);
@@ -297,7 +301,6 @@ public class BattleTerminal extends Battle {
         displayWinner();
     }
 
-    @Override
     protected ActionType chooseAction(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
         boolean canSwitch = player.getAvailableMonstersMap().size() > 1;
@@ -348,7 +351,6 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    @Override
     protected int chooseMonster(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
 
@@ -382,7 +384,6 @@ public class BattleTerminal extends Battle {
         return indexMap.get(choice);
     }
 
-    @Override
     protected Integer chooseItem(Player player, String color) {
         List<ObjectMonster> inventory = player.getInventory();
         Scanner scanner = new Scanner(System.in);
@@ -408,7 +409,6 @@ public class BattleTerminal extends Battle {
         return choice - 1;
     }
 
-    @Override
     protected void useItem(Player player, int itemIndex, String color) {
         ObjectMonster item = player.getInventory().get(itemIndex);
         String message = item.use(player.getCurrentMonster(), this);
@@ -416,12 +416,10 @@ public class BattleTerminal extends Battle {
         player.getInventory().remove(itemIndex);
     }
 
-    @Override
     public void displayMonsterKO(Monster monster, String color) {
         System.out.println(color + "\n" + monster.getName() + " est K.O. !" + COLOR_RESET);
     }
 
-    @Override
     protected void displayAttackAction(HashMap<String, String> attackResult) {
         String attackerName = attackResult.get("attackerName");
         String defenderName = attackResult.get("defenderName");
@@ -445,7 +443,6 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    @Override
     public Attack chooseAttack(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
         

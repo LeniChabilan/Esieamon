@@ -7,6 +7,10 @@ JAVA = java
 # Directories
 SRC_DIR = src
 BIN_DIR = classes
+LIB_DIR = lib
+
+# JavaFX JARs (local)
+JAVAFX_PATH = $(LIB_DIR)/javafx-base-21.0.1-linux.jar:$(LIB_DIR)/javafx-graphics-21.0.1-linux.jar:$(LIB_DIR)/javafx-controls-21.0.1-linux.jar:$(LIB_DIR)/javafx-fxml-21.0.1-linux.jar
 
 # Main package
 MAIN_CLASS = com.esiea.pootp.EsieamonExecutable
@@ -14,26 +18,23 @@ MAIN_CLASS = com.esiea.pootp.EsieamonExecutable
 # Source files (recursive retrieval of all .java files)
 SOURCES = $(shell find $(SRC_DIR) -name "*.java")
 
-# Compiled class files
-CLASSES = $(SOURCES:$(SRC_DIR)/%.java=$(BIN_DIR)/%.class)
-
 # Default target
 .PHONY: all
 all: compile
 
-# Compilation
+# Compilation with JavaFX (classpath only)
 .PHONY: compile
 compile: $(BIN_DIR)
-	@$(JAVAC) -d $(BIN_DIR) -sourcepath $(SRC_DIR) $(SOURCES)
+	@$(JAVAC) -d $(BIN_DIR) -sourcepath $(SRC_DIR) -cp $(JAVAFX_PATH) $(SOURCES)
 
 # Create classes directory if it doesn't exist
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
 
-# Execution
+# Execution with JavaFX (classpath only)
 .PHONY: run
 run: compile
-	@$(JAVA) -cp $(BIN_DIR) $(MAIN_CLASS)
+	@$(JAVA) -cp $(BIN_DIR):$(JAVAFX_PATH) $(MAIN_CLASS)
 
 # Clean
 .PHONY: clean
