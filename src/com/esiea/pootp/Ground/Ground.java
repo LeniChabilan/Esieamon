@@ -1,5 +1,8 @@
 package com.esiea.pootp.Ground;
 
+import java.util.HashMap;
+
+import com.esiea.pootp.Battle.Battle;
 import com.esiea.pootp.Monster.Monster;
 
 public abstract class Ground {
@@ -20,7 +23,12 @@ public abstract class Ground {
         return duration;
     }
 
-    public void applyGroundEffect(Monster monster1, Monster monster2) {
+    public void incrementDuration() {
+        this.duration++;
+    }
+
+    public HashMap<String, String> applyGroundEffect(Monster monster1, Monster monster2, Battle battle) {
         // Default implementation (can be overridden by subclasses)
+        return new HashMap<>();
     }
 }

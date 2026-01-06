@@ -190,14 +190,17 @@ public class Battle {
             }
 
             // Perform Status effects
+            String status1Name = player1.getCurrentMonster().getStatus().getName();
+            String status2Name = player2.getCurrentMonster().getStatus().getName();
+            
             HashMap<String, String> statusEffect1 = player1.getCurrentMonster().getStatus().performStatus(player1.getCurrentMonster(), ground);
             HashMap<String, String> statusEffect2 = player2.getCurrentMonster().getStatus().performStatus(player2.getCurrentMonster(), ground);
 
             if (statusEffect1.containsKey("statusCured") && Boolean.parseBoolean(statusEffect1.get("statusCured"))) {
-                System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " n'est plus " + player1.getCurrentMonster().getStatus().getName() + " !" + COLOR_RESET);
+                System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " n'est plus " + status1Name + " !" + COLOR_RESET);
             }
             if (statusEffect2.containsKey("statusCured") && Boolean.parseBoolean(statusEffect2.get("statusCured"))) {
-                System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " n'est plus " + player2.getCurrentMonster().getStatus().getName() + " !" + COLOR_RESET);
+                System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " n'est plus " + status2Name + " !" + COLOR_RESET);
             }
 
             if (statusEffect1.containsKey("statusEffect")) {
@@ -237,6 +240,38 @@ public class Battle {
             }
             if (!passiveEffect2.isEmpty()) {
                 System.out.println(COLOR_ORANGE + passiveEffect2 + COLOR_RESET);
+            }
+
+            // Perform Ground effects
+            HashMap<String, String> groundEffect = ground.applyGroundEffect(player1.getCurrentMonster(), player2.getCurrentMonster(), this);
+            if (groundEffect.containsKey("monster1_statusEffect")) {
+                System.out.println(COLOR_BLUE + groundEffect.get("monster1_statusEffect") + COLOR_RESET);
+            }
+            if (groundEffect.containsKey("monster2_statusEffect")) {
+                System.out.println(COLOR_ORANGE + groundEffect.get("monster2_statusEffect") + COLOR_RESET);
+            }
+            // Check if monster can attack after ground effects
+            if (attack1 != null && groundEffect.containsKey("monster1_attackAble") && Boolean.parseBoolean(groundEffect.get("monster1_attackAble")) == false) {
+                System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " ne peut pas attaquer à cause du terrain !" + COLOR_RESET);
+                attack1 = null;
+            }
+            if (attack2 != null && groundEffect.containsKey("monster2_attackAble") && Boolean.parseBoolean(groundEffect.get("monster2_attackAble")) == false) {
+                System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " ne peut pas attaquer à cause du terrain !" + COLOR_RESET);
+                attack2 = null;
+            }
+            // Check if ground is cured
+            if (groundEffect.containsKey("groundCured") && Boolean.parseBoolean(groundEffect.get("groundCured"))) {
+                System.out.println("\nLe terrain " + ground.getName() + " a disparu !");
+            }
+
+            // Ckeck if a monster is KO before attacking
+            if (player1.getCurrentMonster().getCurrentHealth() <= 0) {
+                displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
+                attack1 = null;
+            }
+            if (player2.getCurrentMonster().getCurrentHealth() <= 0) {
+                displayMonsterKO(player2.getCurrentMonster(), COLOR_ORANGE);
+                attack2 = null;
             }
 
             // Perform attack actions

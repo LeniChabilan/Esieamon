@@ -43,8 +43,11 @@ public class AttackMonster extends Attack {
         // Handle status and ground application
         if (this.type != AttackType.NORMAL) {
             boolean statusApplied = attacker.applyStatus(defender);
-            if (statusApplied) {
+            if (statusApplied && this.type != AttackType.EARTH) {
                 result.put("status", defender.getName() + " est maintenant " + defender.getStatus().getName() + " !");
+            }
+            else if (statusApplied && this.type == AttackType.EARTH) {
+                result.put("status", attacker.getName() + " est maintenant " + attacker.getStatus().getName() + " !");
             }
 
             boolean groundApplied = attacker.applyGround(battle);
