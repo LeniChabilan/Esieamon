@@ -435,8 +435,8 @@ public class Battle {
 
     private void useItem(Player player, int itemIndex, String color) {
         ObjectMonster item = player.getInventory().get(itemIndex);
-        System.out.println(color + "\n" + player.getName() + " utilise " + item.getName() + " !" + COLOR_RESET);
-        item.use(player.getCurrentMonster());
+        String message = item.use(player.getCurrentMonster(), this);
+        System.out.println(color + "\n" + player.getName() + " utilise " + item.getName() + ". " + message + COLOR_RESET);
         player.getInventory().remove(itemIndex);
     }
 

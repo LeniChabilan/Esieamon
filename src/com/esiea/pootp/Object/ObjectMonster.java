@@ -1,5 +1,6 @@
 package com.esiea.pootp.Object;
 
+import com.esiea.pootp.Battle.Battle;
 import com.esiea.pootp.Monster.Monster;
 
 public abstract class ObjectMonster{
@@ -13,7 +14,8 @@ public abstract class ObjectMonster{
         return weight;
     }
 
-    public void use(Monster monster){
+    public String use(Monster monster, Battle battle){
+        return "";
     }
 
     public String getName(){

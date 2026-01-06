@@ -2,7 +2,7 @@ package com.esiea.pootp.Object.Potion;
 
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Object.ObjectMonster;
-
+import com.esiea.pootp.Battle.Battle;
 
 
 public class Potion extends ObjectMonster {
@@ -36,7 +36,7 @@ public class Potion extends ObjectMonster {
     }
 
     @Override
-    public void use(Monster monster) {
+    public String use(Monster monster, Battle battle) {
         switch (potionType) {
             case HP -> {
                 int healAmount = switch (potionEfficiency) {
@@ -45,7 +45,7 @@ public class Potion extends ObjectMonster {
                     case HYPER -> 100;
                 };
                 monster.heal(healAmount);
-                System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Healed " + healAmount + " HP.");
+                return healAmount + " HP restaurés.";
             }
             case ATTACK -> {
                 int boostAmount = switch (potionEfficiency) {
@@ -54,7 +54,7 @@ public class Potion extends ObjectMonster {
                     case HYPER -> 40;
                 };
                 monster.boostAttack(boostAmount);
-                System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Increased attack by " + boostAmount + ".");
+                return "Attaque augmentée de " + boostAmount + ".";
             }
             case DEFENSE -> {
                 int boostAmount = switch (potionEfficiency) {
@@ -62,8 +62,8 @@ public class Potion extends ObjectMonster {
                     case SUPER -> 25;
                     case HYPER -> 40;
                 };
-                monster.boostDefense(boostAmount);
-                System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Increased defense by " + boostAmount + ".");
+                monster.boostDefense(boostAmount);           
+                return "Défense augmentée de " + boostAmount + ".";
             }
             case SPEED -> {
                 int boostAmount = switch (potionEfficiency) {
@@ -72,7 +72,10 @@ public class Potion extends ObjectMonster {
                     case HYPER -> 40;
                 };
                 monster.boostSpeed(boostAmount);
-                System.out.println("Used " + potionEfficiency + " " + potionType + " potion. Increased speed by " + boostAmount + ".");
+                return "Vitesse augmentée de " + boostAmount + ".";
+            }
+            default -> {
+                return "";
             }
         }
     }
