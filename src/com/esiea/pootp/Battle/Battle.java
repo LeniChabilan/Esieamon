@@ -16,12 +16,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import com.esiea.pootp.Parser.Parser;
 
+
+
+import com.esiea.pootp.Bot.Bot;
+import com.esiea.pootp.Bot.Bot.BotDifficulty;
+
+
 public class Battle {
     public Player player1;
     public Player player2;
     private Parser parser;
     private int teamSize = 3;
     private Ground ground = new NormalGround();
+    private Bot bot = null;
+    private boolean isVsBot = false;
 
     private static final String COLOR_BLUE = "\u001B[94m";
     private static final String COLOR_ORANGE = "\u001B[33m";
@@ -118,24 +126,98 @@ public class Battle {
     }
 
     public void startBattle() {
-        // Player setup
         Scanner scanner = new Scanner(System.in);
+        
+        // === SÉLECTION DU MODE DE JEU ===
+        System.out.println("\n=== ESIEAMON - MODE DE JEU ===");
+        System.out.println("1. Joueur vs Joueur (PvP)");
+        System.out.println("2. Joueur vs Bot (PvE)");
+        System.out.print("Votre choix (1-2): ");
+        
+        int modeChoice = -1;
+        while (modeChoice < 1 || modeChoice > 2) {
+            if (scanner.hasNextInt()) {
+                modeChoice = scanner.nextInt();
+                scanner.nextLine();
+                if (modeChoice < 1 || modeChoice > 2) {
+                    System.out.println("Choix invalide. Veuillez entrer 1 ou 2.");
+                }
+            } else {
+                System.out.println("Veuillez entrer un nombre valide.");
+                scanner.next();
+            }
+        }
+        
+        isVsBot = (modeChoice == 2);
+        
+        // === CONFIGURATION DES JOUEURS ===
         System.out.print(COLOR_BLUE + "Nom du Joueur 1: " + COLOR_RESET);
         String player1Name = scanner.nextLine();
         this.player1 = new Player(player1Name);
-
-        System.out.print(COLOR_ORANGE + "Nom du Joueur 2: " + COLOR_RESET);
-        String player2Name = scanner.nextLine();
-        this.player2 = new Player(player2Name);
-
-        //team size
+        
+        if (isVsBot) {
+            // Mode Bot
+            System.out.println("\n=== NIVEAU DE DIFFICULTÉ DU BOT ===");
+            System.out.println("1. Facile (Actions aléatoires)");
+            System.out.println("2. Moyen (Stratégie basique)");
+            System.out.println("3. Difficile (Stratégie avancée)");
+            System.out.print("Votre choix (1-3): ");
+            
+            int difficultyChoice = -1;
+            while (difficultyChoice < 1 || difficultyChoice > 3) {
+                if (scanner.hasNextInt()) {
+                    difficultyChoice = scanner.nextInt();
+                    scanner.nextLine();
+                    if (difficultyChoice < 1 || difficultyChoice > 3) {
+                        System.out.println("Choix invalide. Veuillez entrer 1, 2 ou 3.");
+                    }
+                } else {
+                    System.out.println("Veuillez entrer un nombre valide.");
+                    scanner.next();
+                }
+            }
+            
+            BotDifficulty difficulty = switch (difficultyChoice) {
+                case 1 -> BotDifficulty.EASY;
+                case 2 -> BotDifficulty.MEDIUM;
+                case 3 -> BotDifficulty.HARD;
+                default -> BotDifficulty.MEDIUM;
+            };
+            
+            this.player2 = new Player("Bot");
+            this.bot = new Bot(player2, difficulty);
+            
+            String difficultyName = switch (difficulty) {
+                case EASY -> "Facile";
+                case MEDIUM -> "Moyen";
+                case HARD -> "Difficile";
+            };
+            System.out.println(COLOR_ORANGE + "Vous affrontez le Bot en difficulté " + difficultyName + " !" + COLOR_RESET);
+        } else {
+            // Mode PvP
+            System.out.print(COLOR_ORANGE + "Nom du Joueur 2: " + COLOR_RESET);
+            String player2Name = scanner.nextLine();
+            this.player2 = new Player(player2Name);
+        }
+        
+        // === TAILLE DE L'ÉQUIPE ===
         System.out.print("Taille de l'équipe (nombre de monstres par joueur): ");
         this.teamSize = scanner.nextInt();
-        scanner.nextLine(); 
-
-        // Monster selection
+        scanner.nextLine();
+        
+        // === SÉLECTION DES MONSTRES ===
         selectMonstersForPlayer(player1, parser, COLOR_BLUE);
-        selectMonstersForPlayer(player2, parser, COLOR_ORANGE);
+        
+        if (isVsBot) {
+            // Le bot choisit ses monstres automatiquement
+            System.out.println("\n" + COLOR_ORANGE + "--- Le Bot choisit son équipe ---" + COLOR_RESET);
+            selectMonstersForBot(player2);
+        } else {
+            selectMonstersForPlayer(player2, parser, COLOR_ORANGE);
+        }
+
+
+        
 
         // Battle loop
         while (!isOver()) {
@@ -321,6 +403,20 @@ public class Battle {
     }
 
     private ActionType chooseAction(Player player, String color) {
+
+
+        if (isVsBot && player == player2) {
+            // C'est le tour du bot
+            ActionType action = bot.chooseAction(player1);
+            String actionName = switch (action) {
+                case ATTACK -> "Attaquer";
+                case SWITCH -> "Changer de monstre";
+                case ITEM -> "Utiliser un objet";
+            };
+            System.out.println(color + "\nLe Bot choisit : " + actionName + COLOR_RESET);
+            return action;
+        }
+
         Scanner scanner = new Scanner(System.in);
         boolean canSwitch = player.getAvailableMonstersMap().size() > 1;
         boolean hasItems = !player.getInventory().isEmpty();
@@ -375,7 +471,34 @@ public class Battle {
         System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
     }
 
+
+    private void selectMonstersForBot(Player botPlayer) {
+    List<Monster> availableMonsters = parser.getAvailableMonsters();
+    
+    // Le bot choisit aléatoirement ses monstres
+    List<Integer> selectedIndices = new ArrayList<>();
+        while (selectedIndices.size() < teamSize) {
+            int randomIndex = (int) (Math.random() * availableMonsters.size());
+            if (!selectedIndices.contains(randomIndex)) {
+                selectedIndices.add(randomIndex);
+                Monster selectedMonster = availableMonsters.get(randomIndex);
+                Monster monsterCopy = parser.getMonsterCopy(selectedMonster.getName());
+                
+                if (monsterCopy != null) {
+                    botPlayer.monsters.add(monsterCopy);
+                    System.out.println("Bot a choisi " + monsterCopy.getName());
+                }
+            }
+        }
+    }
+
     private int chooseMonster(Player player, String color) {
+        if (isVsBot && player == player2) {
+            // C'est le tour du bot
+            int choice = bot.chooseMonster(player1);
+            System.out.println(color + "\nLe Bot change pour " + player.monsters.get(choice).getName() + " !" + COLOR_RESET);
+            return choice;
+        }
         Scanner scanner = new Scanner(System.in);
 
         HashMap<Integer, Integer> indexMap = new HashMap<>();
@@ -409,6 +532,16 @@ public class Battle {
     }
 
     private Integer chooseItem(Player player, String color) {
+        if (isVsBot && player == player2) {
+            // C'est le tour du bot
+            int choice = bot.chooseItem();
+            if (choice >= 0 && choice < player.getInventory().size()) {
+                System.out.println(color + "\nLe Bot utilise " + player.getInventory().get(choice).getName() + " !" + COLOR_RESET);
+                return choice;
+            }
+            return 0;
+        }
+        
         List<ObjectMonster> inventory = player.getInventory();
         Scanner scanner = new Scanner(System.in);
 
@@ -468,6 +601,20 @@ public class Battle {
     }
 
     public Attack chooseAttack(Player player, String color) {
+
+        if (isVsBot && player == player2) {
+            // C'est le tour du bot
+            Attack attack = bot.chooseAttack(player1);
+            if (attack != null) {
+                System.out.println(color + "Le Bot utilise " + attack.getName() + " !" + COLOR_RESET);
+            } else {
+                System.out.println(color + "Le Bot utilise Lutte !" + COLOR_RESET);
+                attack = new AttackStruggle();
+            }
+            return attack;
+        }
+
+
         Scanner scanner = new Scanner(System.in);
         
         // Get current monster and its attacks
