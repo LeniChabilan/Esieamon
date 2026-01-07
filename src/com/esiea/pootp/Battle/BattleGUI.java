@@ -22,7 +22,15 @@ import javafx.scene.control.ListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -447,7 +455,8 @@ public class BattleGUI extends Battle {
                 isSelectingPlayer1 = false;
                 showItemSelection();
             } else {
-                showAlert("Sélection terminée", "Les équipes et objets sont prêts. La logique de bataille GUI reste à implémenter.", AlertType.INFORMATION);
+                showAlert("Sélection terminée", "Les équipes et objets sont prêts. Lancement du combat.", AlertType.INFORMATION);
+                startBattle();
             }
         });
 
@@ -456,8 +465,100 @@ public class BattleGUI extends Battle {
         primaryStage.show();
     }
     
+    private void applyBattleBackground(BorderPane root) {
+        try {
+            Image bgImage = new Image("file:src/com/esiea/pootp/assets/normal_ground.png");
+            BackgroundSize bgSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true);
+            BackgroundImage backgroundImage = new BackgroundImage(
+                bgImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                bgSize
+            );
+            root.setBackground(new Background(backgroundImage));
+        } catch (Exception e) {
+            root.setStyle("-fx-background-color: linear-gradient(#1e1e28, #0f1622);");
+        }
+    }
+    
     @Override
     public void startBattle() {
-        // TODO: Implémenter la logique de bataille en GUI
+        primaryStage.setTitle("Bataille");
+        primaryStage.setWidth(1600);
+        primaryStage.setHeight(900);
+        primaryStage.centerOnScreen();
+
+        BorderPane root = new BorderPane();
+        root.setStyle("-fx-background-color: #1e1e28;");
+
+        Label title = new Label("Bataille - Terrain : " + ground.getName());
+        title.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 30; -fx-font-weight: bold;");
+        BorderPane.setAlignment(title, Pos.CENTER);
+        BorderPane.setMargin(title, new Insets(20, 0, 12, 0));
+        root.setTop(title);
+
+        // Centre avec l'image de fond et log à droite
+        HBox centerContainer = new HBox(12);
+        centerContainer.setPadding(new Insets(12));
+        centerContainer.setStyle("-fx-background-color: #1e1e28;");
+
+        BorderPane battlefieldArea = new BorderPane();
+        battlefieldArea.setPadding(new Insets(12));
+        applyBattleBackground(battlefieldArea);
+        HBox.setHgrow(battlefieldArea, Priority.ALWAYS);
+        centerContainer.getChildren().add(battlefieldArea);
+
+        // Panneau d'informations à droite
+        VBox infoPanel = new VBox(8);
+        infoPanel.setPrefWidth(300);
+        infoPanel.setStyle("-fx-background-color: #2d2d3c; -fx-padding: 12; -fx-border-color: #4682b4; -fx-border-width: 2; -fx-background-radius: 8;");
+        
+        Label logTitle = new Label("Historique du combat");
+        logTitle.setStyle("-fx-text-fill: #4682b4; -fx-font-size: 16; -fx-font-weight: bold;");
+        
+        javafx.scene.control.TextArea logArea = new javafx.scene.control.TextArea();
+        logArea.setStyle("-fx-control-inner-background: #1e1e28; -fx-text-fill: #dcdcdc; -fx-font-size: 11; -fx-font-family: 'Courier New';");
+        logArea.setEditable(false);
+        logArea.setWrapText(true);
+        logArea.setPrefRowCount(20);
+        logArea.setText("Bienvenue dans le combat!\nLes actions seront affichées ici...\n");
+        
+        infoPanel.getChildren().addAll(logTitle, logArea);
+        centerContainer.getChildren().add(infoPanel);
+
+        root.setCenter(centerContainer);
+
+        // Actions en bas (séparé de l'image)
+        VBox bottom = new VBox(10);
+        bottom.setAlignment(Pos.CENTER);
+        bottom.setPadding(new Insets(20));
+        bottom.setStyle("-fx-background-color: #2d2d3c;");
+
+        Label hint = new Label("Actions à connecter : Attaquer, Changer de monstre, Utiliser un objet.");
+        hint.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+
+        HBox actions = new HBox(12);
+        actions.setAlignment(Pos.CENTER);
+
+        Button attackButton = new Button("Attaquer");
+        styleButton(attackButton, "#3c6496", "#5078aa");
+        attackButton.setOnAction(e -> showAlert("À faire", "Brancher la logique d'attaque et l'ordre des tours.", AlertType.INFORMATION));
+
+        Button switchButton = new Button("Changer de monstre");
+        styleButton(switchButton, "#3c6496", "#5078aa");
+        switchButton.setOnAction(e -> showAlert("À faire", "Sélection et validation du changement de monstre en GUI.", AlertType.INFORMATION));
+
+        Button itemButton = new Button("Utiliser un objet");
+        styleButton(itemButton, "#3c6496", "#5078aa");
+        itemButton.setOnAction(e -> showAlert("À faire", "Interface d'objets en combat à relier à l'inventaire.", AlertType.INFORMATION));
+
+        actions.getChildren().addAll(attackButton, switchButton, itemButton);
+        bottom.getChildren().addAll(hint, actions);
+        root.setBottom(bottom);
+
+        Scene scene = new Scene(root, 1600, 900);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 }
