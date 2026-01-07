@@ -3,6 +3,10 @@ package com.esiea.pootp.Battle;
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Parser.Parser;
 import com.esiea.pootp.Object.ObjectMonster;
+import com.esiea.pootp.Attack.Attack;
+import com.esiea.pootp.Attack.AttackMonster;
+import com.esiea.pootp.Attack.AttackStruggle;
+import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Object.Potion.Potion;
 import com.esiea.pootp.Object.Potion.PotionEfficiency;
 import com.esiea.pootp.Object.Potion.PotionType;
@@ -32,16 +36,42 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class BattleGUI extends Battle {
     
     private static Stage primaryStage;
     private static BattleGUI battleInstance;
+
+    private enum Phase { P1_CHOOSE, P2_CHOOSE, RESOLVE }
+    private Phase phase = Phase.P1_CHOOSE;
+    private Attack pendingAttackP1;
+    private Attack pendingAttackP2;
+    private ObjectMonster pendingItemP1;
+    private ObjectMonster pendingItemP2;
+    private boolean switchedP1 = false;
+    private boolean switchedP2 = false;
+
+    private VBox bottomContainer;
+    private Label hintLabel;
+    private TextArea logArea;
+
+    private MonsterView viewP1;
+    private MonsterView viewP2;
+    
+    private static class MonsterView {
+        VBox container;
+        Label hpText;
+        ProgressBar hpBar;
+        Label name;
+        Rectangle sprite;
+    }
     
     public BattleGUI() {
         super();
@@ -484,44 +514,558 @@ public class BattleGUI extends Battle {
     }
     
     
-    private VBox createMonsterDisplay(Player player, String accentColor) {
+    private MonsterView createMonsterDisplay(Player player, String accentColor) {
         var monster = player.getCurrentMonster();
         if (monster == null && !player.monsters.isEmpty()) {
             monster = player.monsters.get(0);
             player.currentMonsterIndex = 0;
         }
 
+        MonsterView view = new MonsterView();
         VBox monsterDisplay = new VBox(10);
         monsterDisplay.setAlignment(Pos.CENTER);
 
-        // Barre de vie
         int maxHp = (monster != null) ? monster.getHealth() : 1;
         int currentHp = (monster != null) ? monster.getCurrentHealth() : 0;
         double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / maxHp));
 
-        Label hpText = new Label(currentHp + " / " + maxHp + " HP");
-        hpText.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 12;");
+        view.hpText = new Label(currentHp + " / " + maxHp + " HP");
+        view.hpText.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 12;");
 
-        ProgressBar hpBar = new ProgressBar(hpRatio);
-        hpBar.setPrefWidth(140);
-        hpBar.setStyle("-fx-accent: " + accentColor + ";");
+        view.hpBar = new ProgressBar(hpRatio);
+        view.hpBar.setPrefWidth(140);
+        view.hpBar.setStyle("-fx-accent: " + accentColor + ";");
 
-        // Placeholder pour le sprite
-        Rectangle spritePlaceholder = new Rectangle(120, 120);
-        spritePlaceholder.setStyle("-fx-fill: #3d3d50; -fx-stroke: " + accentColor + "; -fx-stroke-width: 2;");
+        view.sprite = new Rectangle(120, 120);
+        view.sprite.setStyle("-fx-fill: #3d3d50; -fx-stroke: " + accentColor + "; -fx-stroke-width: 2;");
         
         Label spriteLabel = new Label("Sprite");
         spriteLabel.setStyle("-fx-text-fill: #999999; -fx-font-size: 12;");
         VBox spriteContainer = new VBox();
         spriteContainer.setAlignment(Pos.CENTER);
-        spriteContainer.getChildren().addAll(spritePlaceholder, spriteLabel);
+        spriteContainer.getChildren().addAll(view.sprite, spriteLabel);
 
-        // Nom du monstre
-        Label monsterName = new Label(monster != null ? monster.getName() : "Aucun monstre");
-        monsterName.setStyle("-fx-text-fill: #f0f0f0; -fx-font-size: 16; -fx-font-weight: bold;");
+        view.name = new Label(monster != null ? monster.getName() : "Aucun monstre");
+        view.name.setStyle("-fx-text-fill: #f0f0f0; -fx-font-size: 16; -fx-font-weight: bold;");
 
-        monsterDisplay.getChildren().addAll(hpText, hpBar, spriteContainer, monsterName);
-        return monsterDisplay;
+        monsterDisplay.getChildren().addAll(view.hpText, view.hpBar, spriteContainer, view.name);
+        view.container = monsterDisplay;
+        return view;
+    }
+
+    private void updateMonsterView(MonsterView view, Player player) {
+        Monster monster = player.getCurrentMonster();
+        if (monster == null && !player.monsters.isEmpty()) {
+            monster = player.monsters.get(0);
+            player.currentMonsterIndex = 0;
+        }
+        if (monster == null) {
+            view.name.setText("Aucun monstre");
+            view.hpText.setText("0 / 0 HP");
+            view.hpBar.setProgress(0);
+            return;
+        }
+        int maxHp = monster.getHealth();
+        int currentHp = monster.getCurrentHealth();
+        double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / Math.max(1, maxHp)));
+        view.name.setText(monster.getName());
+        view.hpText.setText(currentHp + " / " + maxHp + " HP");
+        view.hpBar.setProgress(hpRatio);
+    }
+
+    private void appendLog(String text) {
+        logArea.appendText(text + "\n");
+        logArea.setScrollTop(Double.MAX_VALUE);
+    }
+
+    private Player currentPlayer() {
+        return phase == Phase.P1_CHOOSE ? player1 : player2;
+    }
+
+    private Player otherPlayer() {
+        return phase == Phase.P1_CHOOSE ? player2 : player1;
+    }
+
+    private void showActionButtons() {
+        bottomContainer.getChildren().clear();
+        hintLabel.setText("Tour de " + currentPlayer().getName() + " : choisissez une action.");
+        HBox actions = new HBox(12);
+        actions.setAlignment(Pos.CENTER);
+
+        Button attackButton = new Button("Attaquer");
+        styleButton(attackButton, "#3c6496", "#5078aa");
+        attackButton.setOnAction(e -> showAttackChoices());
+
+        Button switchButton = new Button("Changer de monstre");
+        styleButton(switchButton, "#3c6496", "#5078aa");
+        
+        // Vérifier si le joueur peut switcher
+        Player p = currentPlayer();
+        boolean canSwitch = false;
+        for (int i = 0; i < p.monsters.size(); i++) {
+            if (p.monsters.get(i).getCurrentHealth() > 0 && i != p.currentMonsterIndex) {
+                canSwitch = true;
+                break;
+            }
+        }
+        switchButton.setDisable(!canSwitch);
+        switchButton.setOnAction(e -> showMonsterSwitchOptions());
+
+        Button itemButton = new Button("Utiliser un objet");
+        styleButton(itemButton, "#3c6496", "#5078aa");
+        boolean hasItems = !p.getInventory().isEmpty();
+        itemButton.setDisable(!hasItems);
+        itemButton.setOnAction(e -> showItemChoices());
+
+        actions.getChildren().addAll(attackButton, switchButton, itemButton);
+        bottomContainer.getChildren().addAll(hintLabel, actions);
+    }
+
+    private void showMonsterSwitchOptions() {
+        bottomContainer.getChildren().clear();
+        Player p = currentPlayer();
+
+        Label title = new Label("Choisissez un monstre à envoyer au combat:");
+        title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+
+        FlowPane monsterList = new FlowPane();
+        monsterList.setHgap(10);
+        monsterList.setVgap(10);
+        monsterList.setAlignment(Pos.CENTER);
+
+        for (int i = 0; i < p.monsters.size(); i++) {
+            Monster m = p.monsters.get(i);
+            if (m.getCurrentHealth() > 0 && i != p.currentMonsterIndex) {
+                final int idx = i;
+
+                Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
+                b.setPrefWidth(120);
+                b.setWrapText(true);
+                styleButton(b, "#3c6496", "#5078aa");
+                b.setOnAction(e -> {
+                    selectSwitch(idx);
+                });
+                monsterList.getChildren().add(b);
+            }
+        }
+
+        Button back = new Button("Retour");
+        styleButton(back, "#555555", "#666666");
+        back.setOnAction(e -> showActionButtons());
+
+        bottomContainer.getChildren().addAll(title, monsterList, back);
+    }
+
+    private void selectSwitch(int monsterIndex) {
+        Player p = currentPlayer();
+        p.currentMonsterIndex = monsterIndex;
+        appendLog(p.getName() + " envoie " + p.getCurrentMonster().getName());
+
+        if (phase == Phase.P1_CHOOSE) {
+            switchedP1 = true;
+            phase = Phase.P2_CHOOSE;
+            showActionButtons();
+        } else {
+            switchedP2 = true;
+            resolveTurn();
+        }
+    }
+
+    private void showItemChoices() {
+        bottomContainer.getChildren().clear();
+        Player p = currentPlayer();
+
+        Label title = new Label("Choisissez un objet à utiliser:");
+        title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+
+        FlowPane itemList = new FlowPane();
+        itemList.setHgap(10);
+        itemList.setVgap(10);
+        itemList.setAlignment(Pos.CENTER);
+
+        java.util.List<ObjectMonster> inventory = p.getInventory();
+        for (int i = 0; i < inventory.size(); i++) {
+            ObjectMonster item = inventory.get(i);
+            final int idx = i;
+
+            Button b = new Button(item.getName());
+            b.setPrefWidth(120);
+            styleButton(b, "#3c6496", "#5078aa");
+            b.setOnAction(e -> selectItem(item));
+            itemList.getChildren().add(b);
+        }
+
+        Button back = new Button("Retour");
+        styleButton(back, "#555555", "#666666");
+        back.setOnAction(e -> showActionButtons());
+
+        bottomContainer.getChildren().addAll(title, itemList, back);
+    }
+
+    private void selectItem(ObjectMonster item) {
+        if (phase == Phase.P1_CHOOSE) {
+            pendingItemP1 = item;
+            appendLog(currentPlayer().getName() + " choisit " + item.getName());
+            phase = Phase.P2_CHOOSE;
+            showActionButtons();
+        } else {
+            pendingItemP2 = item;
+            appendLog(currentPlayer().getName() + " choisit " + item.getName());
+            resolveTurn();
+        }
+    }
+
+    private void showAttackChoices() {
+        bottomContainer.getChildren().clear();
+        Player p = currentPlayer();
+        Monster monster = p.getCurrentMonster();
+
+        Label title = new Label("Choisissez une attaque pour " + p.getName() + " / " + monster.getName());
+        title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+
+        FlowPane attackList = new FlowPane();
+        attackList.setHgap(10);
+        attackList.setVgap(10);
+        attackList.setAlignment(Pos.CENTER);
+
+        java.util.List<Attack> available = new java.util.ArrayList<>();
+        for (AttackMonster atk : monster.attacks) {
+            if (atk.getNbUses() > 0) {
+                available.add(atk);
+            }
+        }
+
+        if (available.isEmpty()) {
+            available.add(new AttackStruggle());
+        }
+
+        for (Attack atk : available) {
+            String ppInfo = "";
+            if (atk instanceof AttackMonster) {
+                ppInfo = " (PP: " + ((AttackMonster) atk).getNbUses() + ")";
+            }
+            Button b = new Button(atk.getName() + ppInfo);
+            styleButton(b, "#3c6496", "#5078aa");
+            b.setOnAction(e -> {
+                selectAttack(atk);
+            });
+            attackList.getChildren().add(b);
+        }
+
+        Button back = new Button("Retour");
+        styleButton(back, "#555555", "#666666");
+        back.setOnAction(e -> showActionButtons());
+
+        bottomContainer.getChildren().addAll(title, attackList, back);
+    }
+
+    private void selectAttack(Attack attack) {
+        if (phase == Phase.P1_CHOOSE) {
+            pendingAttackP1 = attack;
+            appendLog(currentPlayer().getName() + " choisit " + attack.getName());
+            phase = Phase.P2_CHOOSE;
+            showActionButtons();
+        } else {
+            pendingAttackP2 = attack;
+            appendLog(currentPlayer().getName() + " choisit " + attack.getName());
+            resolveTurn();
+        }
+    }
+
+    private void resolveTurn() {
+        phase = Phase.RESOLVE;
+        Monster m1 = player1.getCurrentMonster();
+        Monster m2 = player2.getCurrentMonster();
+
+        // Si un des deux a changé de monstre, on affiche juste ça et on passe au prochain tour
+        if (switchedP1 || switchedP2) {
+            switchedP1 = false;
+            switchedP2 = false;
+            pendingAttackP1 = null;
+            pendingAttackP2 = null;
+            pendingItemP1 = null;
+            pendingItemP2 = null;
+
+            updateMonsterView(viewP1, player1);
+            updateMonsterView(viewP2, player2);
+
+            phase = Phase.P1_CHOOSE;
+            appendLog("Nouveau tour. " + player1.getName() + " commence.");
+            showActionButtons();
+            return;
+        }
+
+        // Résoudre les objets avant les attaques
+        if (pendingItemP1 != null) {
+            useItemAndLog(player1, pendingItemP1);
+            player1.getInventory().remove(pendingItemP1);
+            pendingItemP1 = null;
+        }
+
+        if (pendingItemP2 != null) {
+            useItemAndLog(player2, pendingItemP2);
+            player2.getInventory().remove(pendingItemP2);
+            pendingItemP2 = null;
+        }
+
+        Attack a1 = pendingAttackP1;
+        Attack a2 = pendingAttackP2;
+
+        if (a1 == null && (m1 != null && m1.hasAvailableAttacks() == false)) {
+            a1 = new AttackStruggle();
+        }
+        if (a2 == null && (m2 != null && m2.hasAvailableAttacks() == false)) {
+            a2 = new AttackStruggle();
+        }
+        // Appliquer les effets de statut
+        String status1Name = m1 != null ? m1.getStatus().getName() : "Normal";
+        String status2Name = m2 != null ? m2.getStatus().getName() : "Normal";
+
+        java.util.HashMap<String, String> statusEffect1 = new java.util.HashMap<>();
+        java.util.HashMap<String, String> statusEffect2 = new java.util.HashMap<>();
+
+        if (m1 != null) {
+            statusEffect1 = m1.getStatus().performStatus(m1, ground);
+            if (statusEffect1.containsKey("statusCured") && Boolean.parseBoolean(statusEffect1.get("statusCured"))) {
+                appendLog(m1.getName() + " n'est plus " + status1Name + " !");
+            }
+            if (statusEffect1.containsKey("statusEffect")) {
+                appendLog(statusEffect1.get("statusEffect"));
+            }
+        }
+
+        if (m2 != null) {
+            statusEffect2 = m2.getStatus().performStatus(m2, ground);
+            if (statusEffect2.containsKey("statusCured") && Boolean.parseBoolean(statusEffect2.get("statusCured"))) {
+                appendLog(m2.getName() + " n'est plus " + status2Name + " !");
+            }
+            if (statusEffect2.containsKey("statusEffect")) {
+                appendLog(statusEffect2.get("statusEffect"));
+            }
+        }
+
+        // Vérifier si les monstres peuvent attaquer après statut
+        boolean canAttack1 = !statusEffect1.containsKey("attackAble") || Boolean.parseBoolean(statusEffect1.get("attackAble"));
+        boolean canAttack2 = !statusEffect2.containsKey("attackAble") || Boolean.parseBoolean(statusEffect2.get("attackAble"));
+
+        // Appliquer les effets spéciaux
+        if (m1 != null) {
+            String specialEffect1 = m1.applySpecialEffect(this);
+            if (!specialEffect1.isEmpty()) {
+                appendLog(specialEffect1);
+            }
+        }
+        if (m2 != null) {
+            String specialEffect2 = m2.applySpecialEffect(this);
+            if (!specialEffect2.isEmpty()) {
+                appendLog(specialEffect2);
+            }
+        }
+
+        // Appliquer les effets passifs
+        if (m1 != null) {
+            String passiveEffect1 = m1.applyPassiveEffect(this);
+            if (!passiveEffect1.isEmpty()) {
+                appendLog(passiveEffect1);
+            }
+        }
+        if (m2 != null) {
+            String passiveEffect2 = m2.applyPassiveEffect(this);
+            if (!passiveEffect2.isEmpty()) {
+                appendLog(passiveEffect2);
+            }
+        }
+
+        // Appliquer les effets du terrain
+        java.util.HashMap<String, String> groundEffect = ground.applyGroundEffect(m1, m2, this);
+        if (groundEffect.containsKey("monster1_statusEffect")) {
+            appendLog(groundEffect.get("monster1_statusEffect"));
+        }
+        if (groundEffect.containsKey("monster2_statusEffect")) {
+            appendLog(groundEffect.get("monster2_statusEffect"));
+        }
+        if (groundEffect.containsKey("groundCured") && Boolean.parseBoolean(groundEffect.get("groundCured"))) {
+            appendLog("Le terrain " + ground.getName() + " a disparu!");
+        }
+
+        // Vérifier si les monstres peuvent attaquer après terrain
+        if (groundEffect.containsKey("monster1_attackAble") && !Boolean.parseBoolean(groundEffect.get("monster1_attackAble"))) {
+            appendLog(m1.getName() + " ne peut pas attaquer à cause du terrain!");
+            canAttack1 = false;
+        }
+        if (groundEffect.containsKey("monster2_attackAble") && !Boolean.parseBoolean(groundEffect.get("monster2_attackAble"))) {
+            appendLog(m2.getName() + " ne peut pas attaquer à cause du terrain!");
+            canAttack2 = false;
+        }
+
+        // Vérifier si les monstres sont K.O. avant les attaques
+        if (m1 != null && m1.getCurrentHealth() <= 0) {
+            appendLog(m1.getName() + " est K.O.");
+            canAttack1 = false;
+        }
+        if (m2 != null && m2.getCurrentHealth() <= 0) {
+            appendLog(m2.getName() + " est K.O.");
+            canAttack2 = false;
+        }
+
+        // Déterminer l'ordre des attaques
+        boolean firstIsP1 = true;
+        if (a1 != null && a2 != null && canAttack1 && canAttack2) {
+            int sp1 = m1.getSpeed();
+            int sp2 = m2.getSpeed();
+            if (sp2 > sp1) {
+                firstIsP1 = false;
+            }
+        } else if ((a1 == null || !canAttack1) && (a2 != null && canAttack2)) {
+            firstIsP1 = false;
+        }
+
+        // Effectuer les attaques
+        if (firstIsP1) {
+            if (a1 != null && canAttack1) performAttackAndLog(player1, player2, a1);
+            if (m2 != null && m2.getCurrentHealth() > 0 && a2 != null && canAttack2) performAttackAndLog(player2, player1, a2);
+        } else {
+            if (a2 != null && canAttack2) performAttackAndLog(player2, player1, a2);
+            if (m1 != null && m1.getCurrentHealth() > 0 && a1 != null && canAttack1) performAttackAndLog(player1, player2, a1);
+        }
+
+        pendingAttackP1 = null;
+        pendingAttackP2 = null;
+
+        updateMonsterView(viewP1, player1);
+        updateMonsterView(viewP2, player2);
+
+        // Vérifier les K.O. et faire sélectionner un nouveau monstre si nécessaire
+        boolean p1NeedsSwitch = player1.getCurrentMonster().getCurrentHealth() <= 0 && player1.hasUsableMonsters();
+        boolean p2NeedsSwitch = player2.getCurrentMonster().getCurrentHealth() <= 0 && player2.hasUsableMonsters();
+
+        if (p1NeedsSwitch || p2NeedsSwitch) {
+            handlePostKOSwitches(p1NeedsSwitch, p2NeedsSwitch);
+            return;
+        }
+
+        if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
+            String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
+            appendLog("Le combat est terminé. Vainqueur: " + winner);
+            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            return;
+        }
+
+        phase = Phase.P1_CHOOSE;
+        appendLog("Nouveau tour. " + player1.getName() + " commence.");
+        showActionButtons();
+    }
+
+    private void handlePostKOSwitches(boolean p1Needs, boolean p2Needs) {
+        if (p1Needs && !p2Needs) {
+            showMonsterSwitchChoices(player1, () -> {
+                updateMonsterView(viewP1, player1);
+                checkGameOver();
+            });
+        } else if (p2Needs && !p1Needs) {
+            showMonsterSwitchChoices(player2, () -> {
+                updateMonsterView(viewP2, player2);
+                checkGameOver();
+            });
+        } else {
+            // Les deux doivent changer
+            showMonsterSwitchChoices(player1, () -> {
+                updateMonsterView(viewP1, player1);
+                showMonsterSwitchChoices(player2, () -> {
+                    updateMonsterView(viewP2, player2);
+                    checkGameOver();
+                });
+            });
+        }
+    }
+
+    private void checkGameOver() {
+        if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
+            String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
+            appendLog("Le combat est terminé. Vainqueur: " + winner);
+            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            return;
+        }
+
+        phase = Phase.P1_CHOOSE;
+        appendLog("Nouveau tour. " + player1.getName() + " commence.");
+        showActionButtons();
+    }
+
+    private void showMonsterSwitchChoices(Player player, Runnable onDone) {
+        bottomContainer.getChildren().clear();
+
+        Label title = new Label(player.getName() + ", choisissez un monstre:");
+        title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+
+        FlowPane monsterList = new FlowPane();
+        monsterList.setHgap(10);
+        monsterList.setVgap(10);
+        monsterList.setAlignment(Pos.CENTER);
+
+        java.util.HashMap<Integer, Integer> indexMap = new java.util.HashMap<>();
+        int displayIndex = 0;
+        for (int i = 0; i < player.monsters.size(); i++) {
+            Monster m = player.monsters.get(i);
+            if (m.getCurrentHealth() > 0 && i != player.currentMonsterIndex) {
+                displayIndex++;
+                final int mapIdx = displayIndex;
+                final int realIdx = i;
+
+                Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
+                b.setPrefWidth(120);
+                b.setWrapText(true);
+                styleButton(b, "#3c6496", "#5078aa");
+                b.setOnAction(e -> {
+                    player.currentMonsterIndex = realIdx;
+                    appendLog(player.getName() + " envoie " + m.getName());
+                    onDone.run();
+                });
+                monsterList.getChildren().add(b);
+                indexMap.put(mapIdx, realIdx);
+            }
+        }
+
+        bottomContainer.getChildren().addAll(title, monsterList);
+    }
+
+    private void performAttackAndLog(Player attacker, Player defender, Attack attack) {
+        Monster mAtt = attacker.getCurrentMonster();
+        Monster mDef = defender.getCurrentMonster();
+
+        if (mAtt == null || mDef == null || mAtt.getCurrentHealth() <= 0) {
+            return;
+        }
+
+        java.util.HashMap<String, String> result = attack.performAttack(mAtt, mDef, this);
+        if (result.isEmpty()) {
+            appendLog(attacker.getName() + " rate son action.");
+            return;
+        }
+
+        String line = mAtt.getName() + " utilise " + attack.getName() + " sur " + mDef.getName();
+        appendLog(line);
+        if (result.containsKey("damage")) {
+            appendLog("Dégâts: " + result.get("damage") + " (" + result.getOrDefault("effectiveness", "") + ")");
+        }
+        if (result.get("status") != null) {
+            appendLog(result.get("status"));
+        }
+        if (result.get("ground") != null) {
+            appendLog(result.get("ground"));
+        }
+
+        if (mDef.getCurrentHealth() <= 0) {
+            appendLog(mDef.getName() + " est K.O.");
+        }
+    }
+
+    private void useItemAndLog(Player player, ObjectMonster item) {
+        Monster m = player.getCurrentMonster();
+        if (m == null) return;
+
+        String message = item.use(m, this);
+        appendLog(player.getName() + " utilise " + item.getName() + ". " + message);
     }
 
     @Override
@@ -548,22 +1092,21 @@ public class BattleGUI extends Battle {
         BorderPane battlefieldArea = new BorderPane();
         battlefieldArea.setPadding(new Insets(12));
         applyBattleBackground(battlefieldArea);
-        
-        // Ajouter les sprites et HP des monstres
-        HBox monsterSpritesContainer = new HBox(40);
-        monsterSpritesContainer.setAlignment(Pos.CENTER_LEFT);
-        monsterSpritesContainer.setPadding(new Insets(20));
-        
-        // Monstre Joueur 1 (gauche)
-        VBox player1MonsterBox = createMonsterDisplay(player1, "#4682b4");
-        
-        // Monstre Joueur 2 (droite)
-        VBox player2MonsterBox = createMonsterDisplay(player2, "#ff8c00");
-        
-        monsterSpritesContainer.getChildren().addAll(player1MonsterBox, new javafx.scene.layout.Region(), player2MonsterBox);
-        HBox.setHgrow(monsterSpritesContainer.getChildren().get(1), Priority.ALWAYS);
-        
-        battlefieldArea.setCenter(monsterSpritesContainer);
+
+        StackPane monsterLayer = new StackPane();
+        monsterLayer.setPadding(new Insets(20));
+
+        viewP1 = createMonsterDisplay(player1, "#4682b4");
+        viewP2 = createMonsterDisplay(player2, "#ff8c00");
+
+        StackPane.setAlignment(viewP1.container, Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(viewP2.container, Pos.TOP_RIGHT);
+        StackPane.setMargin(viewP1.container, new Insets(0, 0, 60, 80));
+        StackPane.setMargin(viewP2.container, new Insets(40, 80, 0, 0));
+
+        monsterLayer.getChildren().addAll(viewP1.container, viewP2.container);
+
+        battlefieldArea.setCenter(monsterLayer);
         HBox.setHgrow(battlefieldArea, Priority.ALWAYS);
         centerContainer.getChildren().add(battlefieldArea);
 
@@ -575,7 +1118,7 @@ public class BattleGUI extends Battle {
         Label logTitle = new Label("Historique du combat");
         logTitle.setStyle("-fx-text-fill: #4682b4; -fx-font-size: 16; -fx-font-weight: bold;");
         
-        javafx.scene.control.TextArea logArea = new javafx.scene.control.TextArea();
+        logArea = new javafx.scene.control.TextArea();
         logArea.setStyle("-fx-control-inner-background: #1e1e28; -fx-text-fill: #dcdcdc; -fx-font-size: 11; -fx-font-family: 'Courier New';");
         logArea.setEditable(false);
         logArea.setWrapText(true);
@@ -588,35 +1131,20 @@ public class BattleGUI extends Battle {
         root.setCenter(centerContainer);
 
         // Actions en bas (séparé de l'image)
-        VBox bottom = new VBox(10);
-        bottom.setAlignment(Pos.CENTER);
-        bottom.setPadding(new Insets(20));
-        bottom.setStyle("-fx-background-color: #2d2d3c;");
-
-        Label hint = new Label("Actions à connecter : Attaquer, Changer de monstre, Utiliser un objet.");
-        hint.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
-
-        HBox actions = new HBox(12);
-        actions.setAlignment(Pos.CENTER);
-
-        Button attackButton = new Button("Attaquer");
-        styleButton(attackButton, "#3c6496", "#5078aa");
-        attackButton.setOnAction(e -> showAlert("À faire", "Brancher la logique d'attaque et l'ordre des tours.", AlertType.INFORMATION));
-
-        Button switchButton = new Button("Changer de monstre");
-        styleButton(switchButton, "#3c6496", "#5078aa");
-        switchButton.setOnAction(e -> showAlert("À faire", "Sélection et validation du changement de monstre en GUI.", AlertType.INFORMATION));
-
-        Button itemButton = new Button("Utiliser un objet");
-        styleButton(itemButton, "#3c6496", "#5078aa");
-        itemButton.setOnAction(e -> showAlert("À faire", "Interface d'objets en combat à relier à l'inventaire.", AlertType.INFORMATION));
-
-        actions.getChildren().addAll(attackButton, switchButton, itemButton);
-        bottom.getChildren().addAll(hint, actions);
-        root.setBottom(bottom);
+        bottomContainer = new VBox(10);
+        bottomContainer.setAlignment(Pos.CENTER);
+        bottomContainer.setPadding(new Insets(20));
+        bottomContainer.setStyle("-fx-background-color: #2d2d3c;");
+        hintLabel = new Label();
+        hintLabel.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+        root.setBottom(bottomContainer);
+        showActionButtons();
 
         Scene scene = new Scene(root, 1600, 900);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        phase = Phase.P1_CHOOSE;
+        appendLog("Tour de " + player1.getName() + " : choisir une action.");
     }
 }
