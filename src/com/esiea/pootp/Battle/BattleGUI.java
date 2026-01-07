@@ -2,6 +2,12 @@ package com.esiea.pootp.Battle;
 
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Parser.Parser;
+import com.esiea.pootp.Object.ObjectMonster;
+import com.esiea.pootp.Object.Potion.Potion;
+import com.esiea.pootp.Object.Potion.PotionEfficiency;
+import com.esiea.pootp.Object.Potion.PotionType;
+import com.esiea.pootp.Object.Medicine.Medicine;
+import com.esiea.pootp.Object.Medicine.MedecineType;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -326,7 +332,8 @@ public class BattleGUI extends Battle {
                 isSelectingPlayer1 = false;
                 showMonsterSelection();
             } else {
-                showAlert("Sélection terminée", "Les équipes sont prêtes. La logique de bataille GUI reste à implémenter.", AlertType.INFORMATION);
+                isSelectingPlayer1 = true; // reset for items
+                showItemSelection();
             }
         });
 
@@ -337,8 +344,116 @@ public class BattleGUI extends Battle {
 
     private boolean isSelectingPlayer1 = true;
 
+    // Sélection d'objets
+    private final int itemWeightLimit = 5;
+
     private String currentSelectingPlayerName() {
         return isSelectingPlayer1 ? player1.getName() : player2.getName();
+    }
+
+    private java.util.List<ObjectMonster> getAvailableItems() {
+        java.util.List<ObjectMonster> items = new java.util.ArrayList<>();
+        items.add(new Potion(PotionEfficiency.NORMAL, PotionType.HP));
+        items.add(new Potion(PotionEfficiency.SUPER, PotionType.HP));
+        items.add(new Potion(PotionEfficiency.HYPER, PotionType.HP));
+        items.add(new Potion(PotionEfficiency.NORMAL, PotionType.ATTACK));
+        items.add(new Potion(PotionEfficiency.SUPER, PotionType.ATTACK));
+        items.add(new Potion(PotionEfficiency.HYPER, PotionType.ATTACK));
+        items.add(new Potion(PotionEfficiency.NORMAL, PotionType.DEFENSE));
+        items.add(new Potion(PotionEfficiency.SUPER, PotionType.DEFENSE));
+        items.add(new Potion(PotionEfficiency.HYPER, PotionType.DEFENSE));
+        items.add(new Potion(PotionEfficiency.NORMAL, PotionType.SPEED));
+        items.add(new Potion(PotionEfficiency.SUPER, PotionType.SPEED));
+        items.add(new Potion(PotionEfficiency.HYPER, PotionType.SPEED));
+        items.add(new Medicine(1, MedecineType.BURN_HEAL));
+        items.add(new Medicine(1, MedecineType.PARALYZE_HEAL));
+        items.add(new Medicine(1, MedecineType.POISON_HEAL));
+        items.add(new Medicine(2, MedecineType.SPONGE_GROUND));
+        return items;
+    }
+
+    private void showItemSelection() {
+        primaryStage.setTitle("Sélection des objets");
+        primaryStage.setWidth(1200);
+        primaryStage.setHeight(850);
+        primaryStage.centerOnScreen();
+
+        BorderPane root = new BorderPane();
+        root.setStyle("-fx-background-color: #1e1e28;");
+        root.setPadding(new Insets(30, 40, 30, 40));
+
+        Label titleLabel = new Label("Objets pour " + currentSelectingPlayerName());
+        titleLabel.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 32; -fx-font-weight: bold;");
+        BorderPane.setAlignment(titleLabel, Pos.CENTER);
+        BorderPane.setMargin(titleLabel, new Insets(20, 0, 10, 0));
+        root.setTop(titleLabel);
+
+        VBox center = new VBox(18);
+        center.setPadding(new Insets(10));
+        center.setAlignment(Pos.TOP_CENTER);
+        center.setFillWidth(true);
+
+        Label instruction = new Label("Sélectionnez des objets (poids total max: " + itemWeightLimit + ")");
+        instruction.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 18;");
+
+        VBox checkboxContainer = new VBox(8);
+        checkboxContainer.setStyle("-fx-background-color: #2d2d3c; -fx-padding: 18; -fx-border-color: #3c6496; -fx-border-width: 2; -fx-border-radius: 6;");
+        checkboxContainer.setFillWidth(true);
+
+        var items = getAvailableItems();
+        for (ObjectMonster item : items) {
+            String label = item.getName() + " (Poids: " + item.getWeight() + ")";
+            CheckBox cb = new CheckBox(label);
+            cb.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
+            cb.setUserData(item);
+            checkboxContainer.getChildren().add(cb);
+        }
+
+        HBox bottom = new HBox(20);
+        bottom.setPadding(new Insets(15));
+        bottom.setAlignment(Pos.CENTER);
+        Button validateButton = new Button("Valider les objets");
+        styleButton(validateButton, "#3c6496", "#5078aa");
+        bottom.getChildren().add(validateButton);
+
+        center.getChildren().addAll(instruction, checkboxContainer);
+        root.setCenter(center);
+        root.setBottom(bottom);
+
+        validateButton.setOnAction(ev -> {
+            java.util.List<ObjectMonster> chosen = new java.util.ArrayList<>();
+            int totalWeight = 0;
+            for (var node : checkboxContainer.getChildren()) {
+                if (node instanceof CheckBox) {
+                    CheckBox cb = (CheckBox) node;
+                    if (cb.isSelected()) {
+                        ObjectMonster item = (ObjectMonster) cb.getUserData();
+                        totalWeight += item.getWeight();
+                        chosen.add(item);
+                    }
+                }
+            }
+
+            if (totalWeight > itemWeightLimit) {
+                showAlert("Limite dépassée", "Poids total " + totalWeight + " > " + itemWeightLimit, AlertType.ERROR);
+                return;
+            }
+
+            Player target = isSelectingPlayer1 ? player1 : player2;
+            target.getInventory().clear();
+            target.getInventory().addAll(chosen);
+
+            if (isSelectingPlayer1) {
+                isSelectingPlayer1 = false;
+                showItemSelection();
+            } else {
+                showAlert("Sélection terminée", "Les équipes et objets sont prêts. La logique de bataille GUI reste à implémenter.", AlertType.INFORMATION);
+            }
+        });
+
+        Scene scene = new Scene(root, 1200, 850);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
     
     @Override
