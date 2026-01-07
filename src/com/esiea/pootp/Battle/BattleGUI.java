@@ -24,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Background;
@@ -482,6 +483,47 @@ public class BattleGUI extends Battle {
         }
     }
     
+    
+    private VBox createMonsterDisplay(Player player, String accentColor) {
+        var monster = player.getCurrentMonster();
+        if (monster == null && !player.monsters.isEmpty()) {
+            monster = player.monsters.get(0);
+            player.currentMonsterIndex = 0;
+        }
+
+        VBox monsterDisplay = new VBox(10);
+        monsterDisplay.setAlignment(Pos.CENTER);
+
+        // Barre de vie
+        int maxHp = (monster != null) ? monster.getHealth() : 1;
+        int currentHp = (monster != null) ? monster.getCurrentHealth() : 0;
+        double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / maxHp));
+
+        Label hpText = new Label(currentHp + " / " + maxHp + " HP");
+        hpText.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 12;");
+
+        ProgressBar hpBar = new ProgressBar(hpRatio);
+        hpBar.setPrefWidth(140);
+        hpBar.setStyle("-fx-accent: " + accentColor + ";");
+
+        // Placeholder pour le sprite
+        Rectangle spritePlaceholder = new Rectangle(120, 120);
+        spritePlaceholder.setStyle("-fx-fill: #3d3d50; -fx-stroke: " + accentColor + "; -fx-stroke-width: 2;");
+        
+        Label spriteLabel = new Label("Sprite");
+        spriteLabel.setStyle("-fx-text-fill: #999999; -fx-font-size: 12;");
+        VBox spriteContainer = new VBox();
+        spriteContainer.setAlignment(Pos.CENTER);
+        spriteContainer.getChildren().addAll(spritePlaceholder, spriteLabel);
+
+        // Nom du monstre
+        Label monsterName = new Label(monster != null ? monster.getName() : "Aucun monstre");
+        monsterName.setStyle("-fx-text-fill: #f0f0f0; -fx-font-size: 16; -fx-font-weight: bold;");
+
+        monsterDisplay.getChildren().addAll(hpText, hpBar, spriteContainer, monsterName);
+        return monsterDisplay;
+    }
+
     @Override
     public void startBattle() {
         primaryStage.setTitle("Bataille");
@@ -506,6 +548,22 @@ public class BattleGUI extends Battle {
         BorderPane battlefieldArea = new BorderPane();
         battlefieldArea.setPadding(new Insets(12));
         applyBattleBackground(battlefieldArea);
+        
+        // Ajouter les sprites et HP des monstres
+        HBox monsterSpritesContainer = new HBox(40);
+        monsterSpritesContainer.setAlignment(Pos.CENTER_LEFT);
+        monsterSpritesContainer.setPadding(new Insets(20));
+        
+        // Monstre Joueur 1 (gauche)
+        VBox player1MonsterBox = createMonsterDisplay(player1, "#4682b4");
+        
+        // Monstre Joueur 2 (droite)
+        VBox player2MonsterBox = createMonsterDisplay(player2, "#ff8c00");
+        
+        monsterSpritesContainer.getChildren().addAll(player1MonsterBox, new javafx.scene.layout.Region(), player2MonsterBox);
+        HBox.setHgrow(monsterSpritesContainer.getChildren().get(1), Priority.ALWAYS);
+        
+        battlefieldArea.setCenter(monsterSpritesContainer);
         HBox.setHgrow(battlefieldArea, Priority.ALWAYS);
         centerContainer.getChildren().add(battlefieldArea);
 
