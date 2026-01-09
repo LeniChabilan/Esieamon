@@ -26,13 +26,13 @@ public class BurrowedStatus extends Status {
         HashMap<String, String> result = new HashMap<>();
         
         if (this.duration == 0) {
-            originalDefense = monster.defense;
-            monster.defense = monster.getDefense() * 2;
+            originalDefense = monster.getDefense();
+            monster.setDefense(monster.getDefense() * 2);
             result.put("statusEffect", monster.getName() + " est enterré et double sa défense !");
         }
         
         if (this.duration >= durationBurrowed) {
-            monster.defense = originalDefense;
+            monster.setDefense(originalDefense);
             result.put("statusCured", "true");
             monster.setStatus(new NormalStatus());
             return result;

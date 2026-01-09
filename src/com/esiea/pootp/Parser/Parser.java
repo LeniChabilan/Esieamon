@@ -90,7 +90,7 @@ public class Parser {
                 for (String attackName : attackNames) {
                     AttackMonster attack = attacksMap.get(attackName);
                     if (attack != null) {
-                        monster.attacks.add(attack);
+                        monster.getAttacks().add(attack);
                     }
                 }
             }
@@ -123,8 +123,8 @@ public class Parser {
         Monster copy = createMonsterCopy(original);
         
         // Copier les attaques
-        for (AttackMonster attack : original.attacks) {
-            copy.attacks.add(attack);
+        for (AttackMonster attack : original.getAttacks()) {
+            copy.getAttacks().add(attack);
         }
         
         return copy;

@@ -17,10 +17,10 @@ import java.util.HashMap;
  * et l'index de son monstre actuellement au combat.
  */
 public class Player {
-    public String name;
-    public List<Monster> monsters;
+    private String name;
+    private List<Monster> monsters;
     private List<ObjectMonster> inventory;
-    public int currentMonsterIndex;
+    private int currentMonsterIndex;
 
     /**
      * Crée un joueur avec le nom donné.
@@ -45,7 +45,7 @@ public class Player {
      */
     public boolean hasUsableMonsters() {
         for (Monster monster : monsters) {
-            if (monster.currentHealth > 0) {
+            if (monster.getCurrentHealth() > 0) {
                 return true;
             }
         }
@@ -70,6 +70,31 @@ public class Player {
     }
 
     /**
+     * Retourne la liste des monstres du joueur.
+     * @return liste des monstres
+     */
+    public List<Monster> getMonsters() {
+        return monsters;
+    }
+
+
+    /**
+     * Définit l'index du monstre actuellement au combat.
+     * @param index nouvel index
+     */
+    public int getCurrentMonsterIndex() {
+        return currentMonsterIndex;
+    }
+    
+    /**
+     * Définit l'index du monstre actuellement au combat.
+     * @param index nouvel index
+     */
+    public void setCurrentMonsterIndex(int index) {
+        this.currentMonsterIndex = index;
+    }
+
+    /**
      * Construit une map indexée des monstres encore utilisables (PV > 0),
      * pratique pour l'affichage et la sélection.
      * @return une table (index d'affichage -> monstre)
@@ -78,7 +103,7 @@ public class Player {
         HashMap<Integer, Monster> available = new HashMap<>();
         int index = 0;
         for (Monster monster : monsters) {
-            if (monster.currentHealth > 0) {
+            if (monster.getCurrentHealth() > 0) {
                 available.put(index, monster);
                 index++;
             }

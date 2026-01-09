@@ -14,14 +14,14 @@ import com.esiea.pootp.Status.Status;
  * appliquer des effets spéciaux/passifs.
  */
 public abstract class Monster {
-    public String name;
-    public int health;
-    public int power;
-    public int defense;
-    public int speed;
-    public int currentHealth;
-    public List<AttackMonster> attacks;
-    private Status status;
+    protected String name;
+    protected int health;
+    protected int power;
+    protected int defense;
+    protected int speed;
+    protected int currentHealth;
+    protected List<AttackMonster> attacks;
+    protected Status status;
 
     /**
      * Construit un monstre avec ses statistiques initiales.
@@ -48,45 +48,74 @@ public abstract class Monster {
      */
     public boolean hasAvailableAttacks() {
         for (AttackMonster attack : attacks) {
-            if (attack.nbUses > 0) {
+            if (attack.getNbUses() > 0) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * @return le nom du monstre
+     */
     public String getName() {
         return name;
     }
 
+    /** @return les PV max du monstre */
     public int getHealth() {
         return health;
     }
 
+    /** @return la puissance d'attaque du monstre */
     public int getPower() {
         return power;
     }
 
+    /** @return la défense du monstre */
     public int getDefense() {
         return defense;
     }
 
+    /** @return la vitesse du monstre */
     public int getSpeed() {
         return speed;
     }
 
+    /**
+     * Définit la défense du monstre.
+     * @param defense
+     */
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+
+    /**     
+     * @return les PV actuels du monstre
+     */
     public int getCurrentHealth() {
         return currentHealth;
     }
 
+    /**     
+     * @return le statut actuel du monstre
+     */ 
     public Status getStatus() {
         return status;
     }
 
+    /**     
+     * @return la liste des attaques du monstre
+     */
     public List<AttackMonster> getAttacks() {
         return attacks;
     }
 
+    /**     
+     * Définit les PV actuels du monstre
+     * @param currentHealth
+     */
     public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
     }
