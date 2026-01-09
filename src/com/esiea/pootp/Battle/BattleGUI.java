@@ -619,6 +619,13 @@ public class BattleGUI extends Battle {
         view.name.setText(monster.getName());
         view.hpText.setText(currentHp + " / " + maxHp + " HP");
         view.hpBar.setProgress(hpRatio);
+
+        // Rafraîchir le sprite lorsque le monstre actif change
+        if (view.sprite != null) {
+            ImageView newSprite = loadMonsterSprite(monster);
+            view.sprite.setImage(newSprite.getImage());
+            view.sprite.setStyle(newSprite.getStyle());
+        }
     }
 
     private void appendLog(String text) {
