@@ -1185,10 +1185,10 @@ public class BattleGUI extends Battle {
         viewP1 = createMonsterDisplay(player1, "#4682b4");
         viewP2 = createMonsterDisplay(player2, "#ff8c00");
 
-        StackPane.setAlignment(viewP1.container, Pos.CENTER_LEFT);
-        StackPane.setAlignment(viewP2.container, Pos.CENTER_RIGHT);
-        StackPane.setMargin(viewP1.container, new Insets(0, 0, 0, 20));
-        StackPane.setMargin(viewP2.container, new Insets(0, 20, 0, 0));
+        StackPane.setAlignment(viewP1.container, Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(viewP2.container, Pos.TOP_RIGHT);
+        StackPane.setMargin(viewP1.container, new Insets(0, 0, 60, 80));
+        StackPane.setMargin(viewP2.container, new Insets(40, 80, 0, 0));
 
         monsterLayer.getChildren().addAll(viewP1.container, viewP2.container);
 
