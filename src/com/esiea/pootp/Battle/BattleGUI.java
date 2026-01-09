@@ -23,8 +23,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -38,7 +36,6 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -51,6 +48,7 @@ public class BattleGUI extends Battle {
     private static Stage primaryStage;
     private static BattleGUI battleInstance;
 
+    // État du jeu
     private enum Phase { P1_CHOOSE, P2_CHOOSE, RESOLVE }
     private Phase phase = Phase.P1_CHOOSE;
     private Attack pendingAttackP1;
@@ -60,6 +58,7 @@ public class BattleGUI extends Battle {
     private boolean switchedP1 = false;
     private boolean switchedP2 = false;
 
+    // Conteneurs et éléments UI
     private VBox bottomContainer;
     private Label hintLabel;
     private TextArea logArea;

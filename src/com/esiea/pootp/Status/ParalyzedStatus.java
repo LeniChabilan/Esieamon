@@ -9,7 +9,6 @@ import com.esiea.pootp.Ground.Ground;
  * La probabilité de guérison augmente avec le nombre de tours.
  */
 public class ParalyzedStatus extends Status {
-    int nbTurnsParalyzed = 0;
 
     public ParalyzedStatus() {
         super("Paralysé");
@@ -22,8 +21,8 @@ public class ParalyzedStatus extends Status {
     public HashMap<String, String> performStatus(Monster monster, Ground ground) {
         HashMap<String, String> result = new HashMap<>();
 
-        nbTurnsParalyzed++;
-        if (Math.random()  < nbTurnsParalyzed / 6.0) {
+        this.duration++;
+        if (Math.random()  < this.duration / 6.0) {
             result.put("attackAble", "true");
             result.put("statusCured", "true");
             monster.setStatus(new NormalStatus());

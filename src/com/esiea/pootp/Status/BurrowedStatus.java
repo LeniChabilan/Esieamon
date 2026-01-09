@@ -9,7 +9,6 @@ import com.esiea.pootp.Ground.Ground;
  * de 1 à 3 tours, puis revient à sa valeur initiale.
  */
 public class BurrowedStatus extends Status {
-    private int nbTurnsBurrowed = 0;
     private int durationBurrowed = 0;
     private int originalDefense = 0;
 
@@ -26,20 +25,20 @@ public class BurrowedStatus extends Status {
     public HashMap<String, String> performStatus(Monster monster, Ground ground) {
         HashMap<String, String> result = new HashMap<>();
         
-        if (nbTurnsBurrowed == 0) {
+        if (this.duration == 0) {
             originalDefense = monster.defense;
             monster.defense = monster.getDefense() * 2;
             result.put("statusEffect", monster.getName() + " est enterré et double sa défense !");
         }
         
-        if (nbTurnsBurrowed >= durationBurrowed) {
+        if (this.duration >= durationBurrowed) {
             monster.defense = originalDefense;
             result.put("statusCured", "true");
             monster.setStatus(new NormalStatus());
             return result;
         }
 
-        nbTurnsBurrowed++;
+        this.duration++;
 
         result.put("attackAble", "true");
         return result;
