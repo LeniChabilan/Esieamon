@@ -31,6 +31,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -72,7 +73,7 @@ public class BattleGUI extends Battle {
         Label hpText;
         ProgressBar hpBar;
         Label name;
-        Rectangle sprite;
+        ImageView sprite;
     }
     
     public BattleGUI() {
@@ -82,6 +83,38 @@ public class BattleGUI extends Battle {
     
     public void launch(String[] args) {
         BattleGUIApp.launchApp(args);
+    }
+    
+    /**
+     * Charge l'image du sprite d'un Pokémon basée sur son nom
+     * Mappe les noms de Pokémon aux fichiers PNG disponibles
+     */
+    private ImageView loadMonsterSprite(Monster monster) {
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(120);
+        imageView.setFitHeight(120);
+        imageView.setPreserveRatio(true);
+        
+        try {
+            String monsterName = monster.getName();
+            String imagePath = "./src/com/esiea/pootp/assets/sprite/" + monsterName + ".png";
+            
+            Image image = new Image(imagePath, 120, 120, true, true);
+            
+            // Vérifier si l'image s'est chargée correctement
+            if (image.isError()) {
+                System.err.println("Erreur de chargement du sprite pour: " + monsterName);
+                // Fallback: image par défaut
+                imageView.setStyle("-fx-border-color: #3c6496; -fx-border-width: 2;");
+            } else {
+                imageView.setImage(image);
+            }
+        } catch (Exception e) {
+            System.err.println("Exception lors du chargement du sprite: " + e.getMessage());
+            imageView.setStyle("-fx-border-color: #3c6496; -fx-border-width: 2;");
+        }
+        
+        return imageView;
     }
     
     public static class BattleGUIApp extends Application {
@@ -546,14 +579,20 @@ public class BattleGUI extends Battle {
         view.hpBar.setPrefWidth(140);
         view.hpBar.setStyle("-fx-accent: " + accentColor + ";");
 
-        view.sprite = new Rectangle(120, 120);
-        view.sprite.setStyle("-fx-fill: #3d3d50; -fx-stroke: " + accentColor + "; -fx-stroke-width: 2;");
+        // Charger le sprite du Pokémon
+        if (monster != null) {
+            view.sprite = loadMonsterSprite(monster);
+        } else {
+            view.sprite = new ImageView();
+            view.sprite.setFitWidth(120);
+            view.sprite.setFitHeight(120);
+            view.sprite.setStyle("-fx-border-color: " + accentColor + "; -fx-border-width: 2;");
+        }
         
-        Label spriteLabel = new Label("Sprite");
-        spriteLabel.setStyle("-fx-text-fill: #999999; -fx-font-size: 12;");
         VBox spriteContainer = new VBox();
         spriteContainer.setAlignment(Pos.CENTER);
-        spriteContainer.getChildren().addAll(view.sprite, spriteLabel);
+        spriteContainer.setStyle("-fx-border-color: " + accentColor + "; -fx-border-width: 2; -fx-padding: 5;");
+        spriteContainer.getChildren().add(view.sprite);
 
         view.name = new Label(monster != null ? monster.getName() : "Aucun monstre");
         view.name.setStyle("-fx-text-fill: #f0f0f0; -fx-font-size: 16; -fx-font-weight: bold;");
