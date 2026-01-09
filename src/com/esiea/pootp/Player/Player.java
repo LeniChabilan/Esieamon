@@ -3,7 +3,7 @@ package com.esiea.pootp.Player;
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Object.ObjectMonster;
 import com.esiea.pootp.Object.Medicine.Medicine;
-import com.esiea.pootp.Object.Medicine.MedecineType;
+import com.esiea.pootp.Object.Medicine.MedicineType;
 import com.esiea.pootp.Object.Potion.Potion;
 import com.esiea.pootp.Object.Potion.PotionEfficiency;
 import com.esiea.pootp.Object.Potion.PotionType;
@@ -35,7 +35,7 @@ public class Player {
         this.inventory.add(new Potion(PotionEfficiency.SUPER, PotionType.HP));
         this.inventory.add(new Potion(PotionEfficiency.NORMAL, PotionType.ATTACK));
         this.inventory.add(new Potion(PotionEfficiency.HYPER, PotionType.DEFENSE));
-        this.inventory.add(new Medicine(3, MedecineType.SPONGE_GROUND));
+        this.inventory.add(new Medicine(3, MedicineType.SPONGE_GROUND));
 
     }
 

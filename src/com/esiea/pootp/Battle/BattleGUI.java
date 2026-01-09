@@ -14,7 +14,7 @@ import com.esiea.pootp.Object.Potion.Potion;
 import com.esiea.pootp.Object.Potion.PotionEfficiency;
 import com.esiea.pootp.Object.Potion.PotionType;
 import com.esiea.pootp.Object.Medicine.Medicine;
-import com.esiea.pootp.Object.Medicine.MedecineType;
+import com.esiea.pootp.Object.Medicine.MedicineType;
 import com.esiea.pootp.Ground.FloodedGround;
 
 import javafx.application.Application;
@@ -453,10 +453,10 @@ public class BattleGUI extends Battle {
         items.add(new Potion(PotionEfficiency.NORMAL, PotionType.SPEED));
         items.add(new Potion(PotionEfficiency.SUPER, PotionType.SPEED));
         items.add(new Potion(PotionEfficiency.HYPER, PotionType.SPEED));
-        items.add(new Medicine(1, MedecineType.BURN_HEAL));
-        items.add(new Medicine(1, MedecineType.PARALYZE_HEAL));
-        items.add(new Medicine(1, MedecineType.POISON_HEAL));
-        items.add(new Medicine(2, MedecineType.SPONGE_GROUND));
+        items.add(new Medicine(1, MedicineType.BURN_HEAL));
+        items.add(new Medicine(1, MedicineType.PARALYZE_HEAL));
+        items.add(new Medicine(1, MedicineType.POISON_HEAL));
+        items.add(new Medicine(2, MedicineType.SPONGE_GROUND));
         return items;
     }
 
