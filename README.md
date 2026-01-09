@@ -22,7 +22,7 @@ Esieamon est un jeu de combat stratégique à deux joueurs où chaque joueur con
 
 ---
 
-## ⚙️ Prérequis
+## Prérequis
 
 ### Système
 
