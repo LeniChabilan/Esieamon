@@ -832,11 +832,3 @@ Attack Dard-Venin
 Attack Plaie-Croix
 Attack Vive-Attaque
 EndAttackMonster
-
-AttackMonster
-Monster Test
-Attack test1
-Attack test2
-Attack test3
-Attack test4
-EndAttackMonster
