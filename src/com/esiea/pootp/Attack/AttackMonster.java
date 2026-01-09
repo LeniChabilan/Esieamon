@@ -89,6 +89,13 @@ public class AttackMonster extends Attack {
     }
 
 
+
+    /**
+     * Calcule l'efficacité de l'attaque en fonction du type du défenseur.
+     * @param attackType
+     * @param defender
+     * @return
+     */
     private double getTypeEffectiveness(AttackType attackType, Monster defender) {
         double effectiveness = 1.0;
         switch (attackType) {

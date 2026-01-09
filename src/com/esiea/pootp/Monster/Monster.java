@@ -55,42 +55,67 @@ public abstract class Monster {
         return false;
     }
 
+    /**
+     * @return le nom du monstre
+     */
     public String getName() {
         return name;
     }
 
+    /** @return les PV max du monstre */
     public int getHealth() {
         return health;
     }
 
+    /** @return la puissance d'attaque du monstre */
     public int getPower() {
         return power;
     }
 
+    /** @return la défense du monstre */
     public int getDefense() {
         return defense;
     }
 
-    public void setDefense(int defense) {
-        this.defense = defense;
-    }
-
+    /** @return la vitesse du monstre */
     public int getSpeed() {
         return speed;
     }
 
+    /**
+     * Définit la défense du monstre.
+     * @param defense
+     */
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+
+    /**     
+     * @return les PV actuels du monstre
+     */
     public int getCurrentHealth() {
         return currentHealth;
     }
 
+    /**     
+     * @return le statut actuel du monstre
+     */ 
     public Status getStatus() {
         return status;
     }
 
+    /**     
+     * @return la liste des attaques du monstre
+     */
     public List<AttackMonster> getAttacks() {
         return attacks;
     }
 
+    /**     
+     * Définit les PV actuels du monstre
+     * @param currentHealth
+     */
     public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
     }

@@ -9,8 +9,8 @@ import com.esiea.pootp.Parser.Parser;
  * Contient le contexte commun: joueurs, parser, taille d'équipe et terrain.
  */
 public abstract class Battle {
-    public Player player1;
-    public Player player2;
+    protected Player player1;
+    protected Player player2;
     protected Parser parser;
     protected int teamSize = 3;
     protected Ground ground = new NormalGround();
@@ -20,6 +20,9 @@ public abstract class Battle {
     protected static final String COLOR_ORANGE = "\u001B[33m";
     protected static final String COLOR_RESET = "\u001B[0m";
 
+    /**
+     * Construit une bataille en initialisant le parser et en chargeant les données.
+     */
     public Battle() {
         this.parser = new Parser();
         try {
@@ -29,10 +32,12 @@ public abstract class Battle {
         }
     }
 
+    /** @return le terrain actuel de la bataille */
     public void setGround(Ground ground) {
         this.ground = ground;
     }
 
+    /** @return le terrain actuel de la bataille */
     public Ground getGround() {
         return this.ground;
     }
