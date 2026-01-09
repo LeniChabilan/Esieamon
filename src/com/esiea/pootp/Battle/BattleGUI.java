@@ -97,7 +97,7 @@ public class BattleGUI extends Battle {
         
         try {
             String monsterName = monster.getName();
-            String imagePath = "./src/com/esiea/pootp/assets/sprite/" + monsterName + ".png";
+            String imagePath = "file:src/com/esiea/pootp/assets/sprite/" + monsterName + ".png";
             
             Image image = new Image(imagePath, 120, 120, true, true);
             
@@ -591,7 +591,6 @@ public class BattleGUI extends Battle {
         
         VBox spriteContainer = new VBox();
         spriteContainer.setAlignment(Pos.CENTER);
-        spriteContainer.setStyle("-fx-border-color: " + accentColor + "; -fx-border-width: 2; -fx-padding: 5;");
         spriteContainer.getChildren().add(view.sprite);
 
         view.name = new Label(monster != null ? monster.getName() : "Aucun monstre");
