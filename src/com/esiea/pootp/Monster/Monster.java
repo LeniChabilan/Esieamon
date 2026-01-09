@@ -14,14 +14,14 @@ import com.esiea.pootp.Status.Status;
  * appliquer des effets spéciaux/passifs.
  */
 public abstract class Monster {
-    private String name;
-    private int health;
-    private int power;
-    private int defense;
-    private int speed;
-    private int currentHealth;
-    private List<AttackMonster> attacks;
-    private Status status;
+    protected String name;
+    protected int health;
+    protected int power;
+    protected int defense;
+    protected int speed;
+    protected int currentHealth;
+    protected List<AttackMonster> attacks;
+    protected Status status;
 
     /**
      * Construit un monstre avec ses statistiques initiales.

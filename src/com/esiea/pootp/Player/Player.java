@@ -17,10 +17,10 @@ import java.util.HashMap;
  * et l'index de son monstre actuellement au combat.
  */
 public class Player {
-    public String name;
-    public List<Monster> monsters;
+    private String name;
+    private List<Monster> monsters;
     private List<ObjectMonster> inventory;
-    public int currentMonsterIndex;
+    private int currentMonsterIndex;
 
     /**
      * Crée un joueur avec le nom donné.
@@ -67,6 +67,31 @@ public class Player {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Retourne la liste des monstres du joueur.
+     * @return liste des monstres
+     */
+    public List<Monster> getMonsters() {
+        return monsters;
+    }
+
+
+    /**
+     * Définit l'index du monstre actuellement au combat.
+     * @param index nouvel index
+     */
+    public int getCurrentMonsterIndex() {
+        return currentMonsterIndex;
+    }
+    
+    /**
+     * Définit l'index du monstre actuellement au combat.
+     * @param index nouvel index
+     */
+    public void setCurrentMonsterIndex(int index) {
+        this.currentMonsterIndex = index;
     }
 
     /**

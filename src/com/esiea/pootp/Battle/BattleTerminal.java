@@ -28,15 +28,15 @@ public class BattleTerminal extends Battle {
     }
 
     protected void switchMonster(Player player, int monsterIndex, String color) {
-        player.currentMonsterIndex = monsterIndex;
+        player.setCurrentMonsterIndex(monsterIndex);
         System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
     }
 
     public void displayWinner() {
         if (player1.hasUsableMonsters()) {
-            System.out.println("\nLe joueur " + player1.name + " a gagné la bataille !");
+            System.out.println("\nLe joueur " + player1.getName() + " a gagné la bataille !");
         } else if (player2.hasUsableMonsters()) {
-            System.out.println("\nLe joueur " + player2.name + " a gagné la bataille !");
+            System.out.println("\nLe joueur " + player2.getName() + " a gagné la bataille !");
         } else {
             System.out.println("\nLa bataille s'est terminée par un match nul !");
         }
@@ -45,14 +45,14 @@ public class BattleTerminal extends Battle {
     public void displayCurrentStatus() {
         System.out.println("\nStatut actuel des monstres: (Terrain: " + ground.getName() + ")");
         String player1Status = player1.getCurrentMonster().getStatus().getName();
-        String player1Line = COLOR_BLUE + player1.name + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP";
+        String player1Line = COLOR_BLUE + player1.getName() + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP";
         if (!player1Status.equals("Normal")) {
             player1Line += " (" + player1Status + ")";
         }
         System.out.println(player1Line + COLOR_RESET);
         
         String player2Status = player2.getCurrentMonster().getStatus().getName();
-        String player2Line = COLOR_ORANGE + player2.name + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP";
+        String player2Line = COLOR_ORANGE + player2.getName() + "'s " + player2.getCurrentMonster().getName() + ": " + player2.getCurrentMonster().getCurrentHealth() + " HP";
         if (!player2Status.equals("Normal")) {
             player2Line += " (" + player2Status + ")";
         }
@@ -67,7 +67,7 @@ public class BattleTerminal extends Battle {
         Scanner scanner = new Scanner(System.in);
         List<Monster> availableMonsters = parser.getAvailableMonsters();
         
-        System.out.println("\n" + color + "--- Sélection pour " + player.name + " ---" + COLOR_RESET);
+        System.out.println("\n" + color + "--- Sélection pour " + player.getName() + " ---" + COLOR_RESET);
         System.out.println("Monstres disponibles :");
         
         for (int i = 0; i < availableMonsters.size(); i++) {
@@ -90,7 +90,7 @@ public class BattleTerminal extends Battle {
                 Monster monsterCopy = parser.getMonsterCopy(selectedMonster.getName());
                 
                 if (monsterCopy != null) {
-                    player.monsters.add(monsterCopy);
+                    player.getMonsters().add(monsterCopy);
                     System.out.println("✓ " + monsterCopy.getName() + " ajouté avec " + 
                                      monsterCopy.getAttacks().size() + " attaques !");
                     nbMonstersChoosen++;
@@ -351,9 +351,9 @@ public class BattleTerminal extends Battle {
         HashMap<Integer, Integer> indexMap = new HashMap<>();
         System.out.println("\n" + color + player.getName() + ", choisissez un monstre à envoyer au combat:" + COLOR_RESET);
         int displayIndex = 1;
-        for (int i = 0; i < player.monsters.size(); i++) {
-            Monster monster = player.monsters.get(i);
-            if (monster.getCurrentHealth() > 0 && i != player.currentMonsterIndex) {
+        for (int i = 0; i < player.getMonsters().size(); i++) {
+            Monster monster = player.getMonsters().get(i);
+            if (monster.getCurrentHealth() > 0 && i != player.getCurrentMonsterIndex()) {
                 System.out.println(displayIndex + ". " + monster.getName() + " (HP: " + monster.getCurrentHealth() + ")");
                 indexMap.put(displayIndex, i);
                 displayIndex++;

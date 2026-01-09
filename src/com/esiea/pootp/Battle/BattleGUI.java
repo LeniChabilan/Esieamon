@@ -415,14 +415,14 @@ public class BattleGUI extends Battle {
                 return;
             }
             Player target = isSelectingPlayer1 ? player1 : player2;
-            target.monsters.clear();
+            target.getMonsters().clear();
             for (String name : chosenNames) {
                 var copy = parser.getMonsterCopy(name);
                 if (copy != null) {
-                    target.monsters.add(copy);
+                    target.getMonsters().add(copy);
                 }
             }
-            target.currentMonsterIndex = 0;
+            target.setCurrentMonsterIndex(0);
 
             if (isSelectingPlayer1) {
                 isSelectingPlayer1 = false;
@@ -586,9 +586,9 @@ public class BattleGUI extends Battle {
     
     private MonsterView createMonsterDisplay(Player player, String accentColor) {
         var monster = player.getCurrentMonster();
-        if (monster == null && !player.monsters.isEmpty()) {
-            monster = player.monsters.get(0);
-            player.currentMonsterIndex = 0;
+        if (monster == null && !player.getMonsters().isEmpty()) {
+            monster = player.getMonsters().get(0);
+            player.setCurrentMonsterIndex(0);
         }
 
         MonsterView view = new MonsterView();
@@ -644,9 +644,9 @@ public class BattleGUI extends Battle {
 
     private void updateMonsterView(MonsterView view, Player player) {
         Monster monster = player.getCurrentMonster();
-        if (monster == null && !player.monsters.isEmpty()) {
-            monster = player.monsters.get(0);
-            player.currentMonsterIndex = 0;
+        if (monster == null && !player.getMonsters().isEmpty()) {
+            monster = player.getMonsters().get(0);
+            player.setCurrentMonsterIndex(0);
         }
         if (monster == null) {
             view.name.setText("Aucun monstre");
@@ -699,8 +699,8 @@ public class BattleGUI extends Battle {
         // Vérifier si le joueur peut switcher
         Player p = currentPlayer();
         boolean canSwitch = false;
-        for (int i = 0; i < p.monsters.size(); i++) {
-            if (p.monsters.get(i).getCurrentHealth() > 0 && i != p.currentMonsterIndex) {
+        for (int i = 0; i < p.getMonsters().size(); i++) {
+            if (p.getMonsters().get(i).getCurrentHealth() > 0 && i != p.getCurrentMonsterIndex()) {
                 canSwitch = true;
                 break;
             }
@@ -728,9 +728,9 @@ public class BattleGUI extends Battle {
         HBox monsterList = new HBox(10);
         monsterList.setAlignment(Pos.CENTER);
 
-        for (int i = 0; i < p.monsters.size(); i++) {
-            Monster m = p.monsters.get(i);
-            if (m.getCurrentHealth() > 0 && i != p.currentMonsterIndex) {
+        for (int i = 0; i < p.getMonsters().size(); i++) {
+            Monster m = p.getMonsters().get(i);
+            if (m.getCurrentHealth() > 0 && i != p.getCurrentMonsterIndex()) {
                 final int idx = i;
 
                 Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
@@ -753,7 +753,7 @@ public class BattleGUI extends Battle {
 
     private void selectSwitch(int monsterIndex) {
         Player p = currentPlayer();
-        p.currentMonsterIndex = monsterIndex;
+        p.setCurrentMonsterIndex(monsterIndex);
         appendLog(p.getName() + " envoie " + p.getCurrentMonster().getName());
 
         if (phase == Phase.P1_CHOOSE) {
@@ -1115,9 +1115,9 @@ public class BattleGUI extends Battle {
 
         java.util.HashMap<Integer, Integer> indexMap = new java.util.HashMap<>();
         int displayIndex = 0;
-        for (int i = 0; i < player.monsters.size(); i++) {
-            Monster m = player.monsters.get(i);
-            if (m.getCurrentHealth() > 0 && i != player.currentMonsterIndex) {
+        for (int i = 0; i < player.getMonsters().size(); i++) {
+            Monster m = player.getMonsters().get(i);
+            if (m.getCurrentHealth() > 0 && i != player.getCurrentMonsterIndex()) {
                 displayIndex++;
                 final int mapIdx = displayIndex;
                 final int realIdx = i;
@@ -1125,7 +1125,7 @@ public class BattleGUI extends Battle {
                 Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
                 styleButton(b, "#3c6496", "#5078aa");
                 b.setOnAction(e -> {
-                    player.currentMonsterIndex = realIdx;
+                    player.setCurrentMonsterIndex(realIdx);
                     appendLog(player.getName() + " envoie " + m.getName());
                     onDone.run();
                 });
