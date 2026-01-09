@@ -23,16 +23,17 @@ public class BattleTerminal extends Battle {
         super();
     }
 
-    public boolean isOver() {
+    private boolean isOver() {
         return !player1.hasUsableMonsters() || !player2.hasUsableMonsters();
     }
 
-    protected void switchMonster(Player player, int monsterIndex, String color) {
+
+    private void switchMonster(Player player, int monsterIndex, String color) {
         player.setCurrentMonsterIndex(monsterIndex);
         System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
     }
 
-    public void displayWinner() {
+    private void displayWinner() {
         if (player1.hasUsableMonsters()) {
             System.out.println("\nLe joueur " + player1.getName() + " a gagné la bataille !");
         } else if (player2.hasUsableMonsters()) {
@@ -42,7 +43,7 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    public void displayCurrentStatus() {
+    private void displayCurrentStatus() {
         System.out.println("\nStatut actuel des monstres: (Terrain: " + ground.getName() + ")");
         String player1Status = player1.getCurrentMonster().getStatus().getName();
         String player1Line = COLOR_BLUE + player1.getName() + "'s " + player1.getCurrentMonster().getName() + ": " + player1.getCurrentMonster().getCurrentHealth() + " HP";
@@ -59,11 +60,11 @@ public class BattleTerminal extends Battle {
         System.out.println(player2Line + COLOR_RESET);
     }
 
-    protected void displayMonsterSwitch(Player player, String color) {
+    private void displayMonsterSwitch(Player player, String color) {
         System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
     }
 
-    protected void selectMonstersForPlayer(Player player, Parser parser, String color) {
+    private void selectMonstersForPlayer(Player player, Parser parser, String color) {
         Scanner scanner = new Scanner(System.in);
         List<Monster> availableMonsters = parser.getAvailableMonsters();
         
@@ -295,7 +296,7 @@ public class BattleTerminal extends Battle {
         displayWinner();
     }
 
-    protected ActionType chooseAction(Player player, String color) {
+    private ActionType chooseAction(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
         boolean canSwitch = player.getAvailableMonstersMap().size() > 1;
         boolean hasItems = !player.getInventory().isEmpty();
@@ -345,7 +346,7 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    protected int chooseMonster(Player player, String color) {
+    private int chooseMonster(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
 
         HashMap<Integer, Integer> indexMap = new HashMap<>();
@@ -378,7 +379,7 @@ public class BattleTerminal extends Battle {
         return indexMap.get(choice);
     }
 
-    protected Integer chooseItem(Player player, String color) {
+    private Integer chooseItem(Player player, String color) {
         List<ObjectMonster> inventory = player.getInventory();
         Scanner scanner = new Scanner(System.in);
 
@@ -403,18 +404,18 @@ public class BattleTerminal extends Battle {
         return choice - 1;
     }
 
-    protected void useItem(Player player, int itemIndex, String color) {
+    private void useItem(Player player, int itemIndex, String color) {
         ObjectMonster item = player.getInventory().get(itemIndex);
         String message = item.use(player.getCurrentMonster(), this);
         System.out.println(color + "\n" + player.getName() + " utilise " + item.getName() + ". " + message + COLOR_RESET);
         player.getInventory().remove(itemIndex);
     }
 
-    public void displayMonsterKO(Monster monster, String color) {
+    private void displayMonsterKO(Monster monster, String color) {
         System.out.println(color + "\n" + monster.getName() + " est K.O. !" + COLOR_RESET);
     }
 
-    protected void displayAttackAction(HashMap<String, String> attackResult) {
+    private void displayAttackAction(HashMap<String, String> attackResult) {
         String attackerName = attackResult.get("attackerName");
         String defenderName = attackResult.get("defenderName");
         String attackName = attackResult.get("attackName");
@@ -437,7 +438,7 @@ public class BattleTerminal extends Battle {
         }
     }
 
-    public Attack chooseAttack(Player player, String color) {
+    private Attack chooseAttack(Player player, String color) {
         Scanner scanner = new Scanner(System.in);
         
         // Get current monster and its attacks
