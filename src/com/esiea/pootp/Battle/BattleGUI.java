@@ -2,7 +2,6 @@ package com.esiea.pootp.Battle;
 
 import javax.sound.sampled.*;
 import java.io.File;
-import java.net.URL;
 
 import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Parser.Parser;
@@ -72,10 +71,7 @@ public class BattleGUI extends Battle {
 
     private MonsterView viewP1;
     private MonsterView viewP2;
-    private SourceDataLine audioLine;
-    private Thread audioThread;
-    private Process audioProcess;
-    private volatile boolean audioPlaying = false;
+    private MusicPlayer musicPlayer;
     
     private static class MonsterView {
         VBox container;
@@ -88,6 +84,7 @@ public class BattleGUI extends Battle {
     public BattleGUI() {
         super();
         battleInstance = this;
+        musicPlayer = new MusicPlayer();
     }
     
     public void launch(String[] args) {
@@ -802,7 +799,7 @@ public class BattleGUI extends Battle {
     private void resolveTurn() {
         phase = Phase.RESOLVE;
         
-        // Les changements de monstre se font AVANT tout le reste (comme dans Terminal)
+        // Changement des monstres 
         if (switchedP1 || switchedP2) {
             updateMonsterView(viewP1, player1);
             updateMonsterView(viewP2, player2);
@@ -826,7 +823,7 @@ public class BattleGUI extends Battle {
             pendingItemP2 = null;
         }
         
-        // Mettre à jour le fond si le terrain a changé (ex: avec SPONGE_GROUND)
+        // Mettre à jour le fond en fonction du terrain actuel
         if (battlefieldArea != null) {
             applyBattleBackground(battlefieldArea);
         }
@@ -840,6 +837,7 @@ public class BattleGUI extends Battle {
         if (a2 == null && (m2 != null && m2.hasAvailableAttacks() == false)) {
             a2 = new AttackStruggle();
         }
+        
         // Appliquer les effets de statut
         String status1Name = m1 != null ? m1.getStatus().getName() : "Normal";
         String status2Name = m2 != null ? m2.getStatus().getName() : "Normal";
@@ -1213,20 +1211,15 @@ public class BattleGUI extends Battle {
     private void playBackgroundMusic() {
         try {
             // Chercher le fichier WAV
-            File musicFile = null;
+            File audioFile = null;
             
-            // Essai 1: depuis classes/ (après compilation)
             File classesFile = new File("classes/com/esiea/pootp/assets/sound/background_sound.wav");
-            final File audioFile;
             if (classesFile.exists()) {
                 audioFile = classesFile;
             } else {
-                // Essai 2: depuis src/ (mode développement)
                 File srcFile = new File("src/com/esiea/pootp/assets/sound/background_sound.wav");
                 if (srcFile.exists()) {
                     audioFile = srcFile;
-                } else {
-                    audioFile = null;
                 }
             }
             
@@ -1235,155 +1228,18 @@ public class BattleGUI extends Battle {
                 return;
             }
             
-            // Lancer la lecture dans un thread séparé pour ne pas bloquer l'UI
-            audioPlaying = true;
-            audioThread = new Thread(() -> playAudioLoop(audioFile));
-            audioThread.setDaemon(true);
-            audioThread.start();
-            System.out.println("[AUDIO] Musique lancée");
-            
+            musicPlayer.play(audioFile);
         } catch (Exception e) {
             System.out.println("[AUDIO] Erreur: " + e.getMessage());
         }
     }
-
-    private void playAudioLoop(File musicFile) {
-        try {
-            while (audioPlaying) {
-                playWithSystemCommand(musicFile);
-                if (!audioPlaying) break;
-                // Boucle en recommençant le fichier
-            }
-        } catch (Exception e) {
-            System.out.println("[AUDIO] Erreur lecture: " + e.getMessage());
-        }
-    }
-    
-    private boolean playWithSystemCommand(File musicFile) {
-        // Essayer différentes commandes système
-        String[] commands = {
-            "ffplay -nodisp -autoexit -loglevel quiet " + musicFile.getAbsolutePath(),
-            "aplay " + musicFile.getAbsolutePath(),
-            "paplay " + musicFile.getAbsolutePath(),
-            "mpv --no-video --really-quiet " + musicFile.getAbsolutePath(),
-        };
-        
-        for (String cmd : commands) {
-            try {
-                audioProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", cmd});
-                System.out.println("[AUDIO] Exécution: " + cmd.split(" ")[0]);
-                
-                // Attendre que le processus se termine ou que audioPlaying devienne false
-                while (audioProcess.isAlive() && audioPlaying) {
-                    Thread.sleep(100);
-                }
-                
-                if (!audioPlaying) {
-                    audioProcess.destroyForcibly();
-                    audioProcess.waitFor();
-                }
-                audioProcess = null;
-                return true;
-            } catch (Exception e) {
-                // Commande non disponible, essayer la suivante
-                System.out.println("[AUDIO] " + cmd.split(" ")[0] + " non disponible");
-                if (audioProcess != null) {
-                    audioProcess.destroyForcibly();
-                    audioProcess = null;
-                }
-            }
-        }
-        return false;
-    }
     
     private AudioFormat findCompatibleFormat(AudioFormat original) {
-        // Essayer différents formats par ordre de compatibilité
-        AudioFormat[] tryFormats = {
-            // Format original
-            original,
-            // Mono versions
-            new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, original.getSampleRate(), 16, 1, 2, original.getSampleRate(), false),
-            new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, original.getSampleRate(), 16, 1, 2, original.getSampleRate(), true),
-            // Formats standards - stéréo
-            new AudioFormat(44100, 16, 2, true, false),
-            new AudioFormat(44100, 16, 2, true, true),
-            new AudioFormat(48000, 16, 2, true, false),
-            new AudioFormat(22050, 16, 2, true, false),
-            // Formats standards - mono
-            new AudioFormat(44100, 16, 1, true, false),
-            new AudioFormat(44100, 16, 1, true, true),
-            new AudioFormat(48000, 16, 1, true, false),
-            new AudioFormat(22050, 16, 1, true, false),
-            new AudioFormat(11025, 16, 1, true, false),
-            new AudioFormat(8000, 16, 1, true, false),
-            // 8-bit formats
-            new AudioFormat(44100, 8, 1, true, false),
-            new AudioFormat(22050, 8, 1, true, false),
-            new AudioFormat(11025, 8, 1, true, false),
-        };
-        
-        for (AudioFormat fmt : tryFormats) {
-            try {
-                DataLine.Info info = new DataLine.Info(SourceDataLine.class, fmt);
-                if (AudioSystem.getLine(info) != null) {
-                    if (!fmt.equals(original)) {
-                        System.out.println("[AUDIO] Format convertit: " + fmt.getSampleRate() + "Hz, " + fmt.getSampleSizeInBits() + "bit, " + fmt.getChannels() + "ch");
-                    }
-                    return fmt;
-                }
-            } catch (Exception e) {
-                // Format non compatible, essayer le suivant
-            }
-        }
-        return null;
+        // Méthode conservée pour compatibilité future, mais non utilisée actuellement
+        return original;
     }
 
     private void stopBackgroundMusic() {
-        audioPlaying = false;
-        
-        // Arrêter le processus système (aplay, paplay, etc.)
-        if (audioProcess != null) {
-            try {
-                // D'abord essayer destroy(), puis destroyForcibly()
-                audioProcess.destroy();
-                if (!audioProcess.waitFor(500, java.util.concurrent.TimeUnit.MILLISECONDS)) {
-                    audioProcess.destroyForcibly();
-                }
-                
-                // Tuer aussi avec kill -9 au cas où
-                try {
-                    Runtime.getRuntime().exec(new String[]{"killall", "-9", "aplay"}).waitFor();
-                    Runtime.getRuntime().exec(new String[]{"killall", "-9", "paplay"}).waitFor();
-                    Runtime.getRuntime().exec(new String[]{"killall", "-9", "ffplay"}).waitFor();
-                    Runtime.getRuntime().exec(new String[]{"killall", "-9", "mpv"}).waitFor();
-                } catch (Exception ignored) {}
-            } catch (Exception e) {
-                // Ignoré
-            }
-            audioProcess = null;
-        }
-        
-        // Arrêter la ligne audio Java
-        if (audioLine != null) {
-            try {
-                audioLine.stop();
-                audioLine.close();
-            } catch (Exception e) {
-                // Ignoré
-            }
-            audioLine = null;
-        }
-        
-        // Attendre que le thread se termine (avec timeout)
-        if (audioThread != null && audioThread.isAlive()) {
-            try {
-                audioThread.join(1000); // Attendre max 1 seconde
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            audioThread = null;
-        }
-        
-        System.out.println("[AUDIO] Musique arrêtée");
+        musicPlayer.stop();
     }
 }
