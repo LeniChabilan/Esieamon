@@ -12,6 +12,7 @@ import com.esiea.pootp.Object.Potion.PotionEfficiency;
 import com.esiea.pootp.Object.Potion.PotionType;
 import com.esiea.pootp.Object.Medicine.Medicine;
 import com.esiea.pootp.Object.Medicine.MedecineType;
+import com.esiea.pootp.Ground.FloodedGround;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -61,6 +62,7 @@ public class BattleGUI extends Battle {
     private VBox bottomContainer;
     private Label hintLabel;
     private TextArea logArea;
+    private BorderPane battlefieldArea;
 
     private MonsterView viewP1;
     private MonsterView viewP2;
@@ -498,7 +500,15 @@ public class BattleGUI extends Battle {
     
     private void applyBattleBackground(BorderPane root) {
         try {
-            Image bgImage = new Image("file:src/com/esiea/pootp/assets/normal_ground.png");
+            // Choisir l'image de fond en fonction du terrain
+            String imagePath;
+            if (ground instanceof FloodedGround) {
+                imagePath = "file:src/com/esiea/pootp/assets/flooded_ground.png";
+            } else {
+                imagePath = "file:src/com/esiea/pootp/assets/normal_ground.png";
+            }
+            
+            Image bgImage = new Image(imagePath);
             BackgroundSize bgSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true);
             BackgroundImage backgroundImage = new BackgroundImage(
                 bgImage,
@@ -774,26 +784,17 @@ public class BattleGUI extends Battle {
 
     private void resolveTurn() {
         phase = Phase.RESOLVE;
-        Monster m1 = player1.getCurrentMonster();
-        Monster m2 = player2.getCurrentMonster();
-
-        // Si un des deux a changé de monstre, on affiche juste ça et on passe au prochain tour
+        
+        // Les changements de monstre se font AVANT tout le reste (comme dans Terminal)
         if (switchedP1 || switchedP2) {
-            switchedP1 = false;
-            switchedP2 = false;
-            pendingAttackP1 = null;
-            pendingAttackP2 = null;
-            pendingItemP1 = null;
-            pendingItemP2 = null;
-
             updateMonsterView(viewP1, player1);
             updateMonsterView(viewP2, player2);
-
-            phase = Phase.P1_CHOOSE;
-            appendLog("Nouveau tour. " + player1.getName() + " commence.");
-            showActionButtons();
-            return;
+            switchedP1 = false;
+            switchedP2 = false;
         }
+        
+        Monster m1 = player1.getCurrentMonster();
+        Monster m2 = player2.getCurrentMonster();
 
         // Résoudre les objets avant les attaques
         if (pendingItemP1 != null) {
@@ -806,6 +807,11 @@ public class BattleGUI extends Battle {
             useItemAndLog(player2, pendingItemP2);
             player2.getInventory().remove(pendingItemP2);
             pendingItemP2 = null;
+        }
+        
+        // Mettre à jour le fond si le terrain a changé (ex: avec SPONGE_GROUND)
+        if (battlefieldArea != null) {
+            applyBattleBackground(battlefieldArea);
         }
 
         Attack a1 = pendingAttackP1;
@@ -847,6 +853,15 @@ public class BattleGUI extends Battle {
         // Vérifier si les monstres peuvent attaquer après statut
         boolean canAttack1 = !statusEffect1.containsKey("attackAble") || Boolean.parseBoolean(statusEffect1.get("attackAble"));
         boolean canAttack2 = !statusEffect2.containsKey("attackAble") || Boolean.parseBoolean(statusEffect2.get("attackAble"));
+        
+        if (a1 != null && !canAttack1) {
+            appendLog(m1.getName() + " est " + m1.getStatus().getName() + " et ne peut pas attaquer !");
+            a1 = null;
+        }
+        if (a2 != null && !canAttack2) {
+            appendLog(m2.getName() + " est " + m2.getStatus().getName() + " et ne peut pas attaquer !");
+            a2 = null;
+        }
 
         // Appliquer les effets spéciaux
         if (m1 != null) {
@@ -887,46 +902,71 @@ public class BattleGUI extends Battle {
         if (groundEffect.containsKey("groundCured") && Boolean.parseBoolean(groundEffect.get("groundCured"))) {
             appendLog("Le terrain " + ground.getName() + " a disparu!");
         }
+        
+        // Mettre à jour le fond en fonction du terrain actuel
+        if (battlefieldArea != null) {
+            applyBattleBackground(battlefieldArea);
+        }
 
         // Vérifier si les monstres peuvent attaquer après terrain
         if (groundEffect.containsKey("monster1_attackAble") && !Boolean.parseBoolean(groundEffect.get("monster1_attackAble"))) {
             appendLog(m1.getName() + " ne peut pas attaquer à cause du terrain!");
             canAttack1 = false;
+            a1 = null;
         }
         if (groundEffect.containsKey("monster2_attackAble") && !Boolean.parseBoolean(groundEffect.get("monster2_attackAble"))) {
             appendLog(m2.getName() + " ne peut pas attaquer à cause du terrain!");
             canAttack2 = false;
+            a2 = null;
         }
 
         // Vérifier si les monstres sont K.O. avant les attaques
         if (m1 != null && m1.getCurrentHealth() <= 0) {
             appendLog(m1.getName() + " est K.O.");
             canAttack1 = false;
+            a1 = null;
         }
         if (m2 != null && m2.getCurrentHealth() <= 0) {
             appendLog(m2.getName() + " est K.O.");
             canAttack2 = false;
-        }
-
-        // Déterminer l'ordre des attaques
-        boolean firstIsP1 = true;
-        if (a1 != null && a2 != null && canAttack1 && canAttack2) {
-            int sp1 = m1.getSpeed();
-            int sp2 = m2.getSpeed();
-            if (sp2 > sp1) {
-                firstIsP1 = false;
-            }
-        } else if ((a1 == null || !canAttack1) && (a2 != null && canAttack2)) {
-            firstIsP1 = false;
+            a2 = null;
         }
 
         // Effectuer les attaques
-        if (firstIsP1) {
-            if (a1 != null && canAttack1) performAttackAndLog(player1, player2, a1);
-            if (m2 != null && m2.getCurrentHealth() > 0 && a2 != null && canAttack2) performAttackAndLog(player2, player1, a2);
-        } else {
-            if (a2 != null && canAttack2) performAttackAndLog(player2, player1, a2);
-            if (m1 != null && m1.getCurrentHealth() > 0 && a1 != null && canAttack1) performAttackAndLog(player1, player2, a1);
+        if (a1 != null && a2 != null) {
+            // Les deux joueurs attaquent - ordre selon la vitesse
+            if (m1.getSpeed() >= m2.getSpeed()) {
+                performAttackAndLog(player1, player2, a1);
+                if (m2.getCurrentHealth() > 0) {
+                    performAttackAndLog(player2, player1, a2);
+                } else {
+                    appendLog(m2.getName() + " est K.O. !");
+                }
+            } else {
+                performAttackAndLog(player2, player1, a2);
+                if (m1.getCurrentHealth() > 0) {
+                    performAttackAndLog(player1, player2, a1);
+                } else {
+                    appendLog(m1.getName() + " est K.O. !");
+                }
+            }
+        } else if (a1 != null) {
+            // Seulement le joueur 1 attaque
+            performAttackAndLog(player1, player2, a1);
+            if (m2.getCurrentHealth() <= 0) {
+                appendLog(m2.getName() + " est K.O. !");
+            }
+        } else if (a2 != null) {
+            // Seulement le joueur 2 attaque
+            performAttackAndLog(player2, player1, a2);
+            if (m1.getCurrentHealth() <= 0) {
+                appendLog(m1.getName() + " est K.O. !");
+            }
+        }
+        
+        // Mettre à jour le fond si une attaque a changé le terrain
+        if (battlefieldArea != null) {
+            applyBattleBackground(battlefieldArea);
         }
 
         pendingAttackP1 = null;
@@ -935,19 +975,20 @@ public class BattleGUI extends Battle {
         updateMonsterView(viewP1, player1);
         updateMonsterView(viewP2, player2);
 
+        // Vérifier d'abord la fin du combat
+        if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
+            String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
+            appendLog("Le combat est terminé. Vainqueur: " + winner);
+            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            return;
+        }
+
         // Vérifier les K.O. et faire sélectionner un nouveau monstre si nécessaire
         boolean p1NeedsSwitch = player1.getCurrentMonster().getCurrentHealth() <= 0 && player1.hasUsableMonsters();
         boolean p2NeedsSwitch = player2.getCurrentMonster().getCurrentHealth() <= 0 && player2.hasUsableMonsters();
 
         if (p1NeedsSwitch || p2NeedsSwitch) {
             handlePostKOSwitches(p1NeedsSwitch, p2NeedsSwitch);
-            return;
-        }
-
-        if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
-            String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
-            appendLog("Le combat est terminé. Vainqueur: " + winner);
-            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
             return;
         }
 
@@ -1089,7 +1130,7 @@ public class BattleGUI extends Battle {
         centerContainer.setPadding(new Insets(12));
         centerContainer.setStyle("-fx-background-color: #1e1e28;");
 
-        BorderPane battlefieldArea = new BorderPane();
+        battlefieldArea = new BorderPane();
         battlefieldArea.setPadding(new Insets(12));
         applyBattleBackground(battlefieldArea);
 
