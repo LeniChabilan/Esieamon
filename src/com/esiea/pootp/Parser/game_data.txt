@@ -189,14 +189,6 @@ Attack 65 96
 Defense 70 101
 EndMonster
 
-Monster
-Name Test
-Type Insect
-HP 400 450
-Speed 90 121
-Attack 65 96
-Defense 70 101
-EndMonster
 
 
 
@@ -621,37 +613,6 @@ NbUse 20
 Fail 0.05
 EndAttack
 
-Attack
-Name test1
-Type Normal
-Power 90
-NbUse 0
-Fail 0.05
-EndAttack
-
-Attack
-Name test2
-Type Normal
-Power 90
-NbUse 0
-Fail 0.05
-EndAttack
-
-Attack
-Name test3
-Type Normal
-Power 90
-NbUse 0
-Fail 0.05
-EndAttack
-
-Attack
-Name test4
-Type Normal
-Power 90
-NbUse 1
-Fail 0.05
-EndAttack
 
 
 
