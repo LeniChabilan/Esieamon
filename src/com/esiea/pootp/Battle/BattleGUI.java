@@ -91,15 +91,15 @@ public class BattleGUI extends Battle {
      */
     private ImageView loadMonsterSprite(Monster monster) {
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(180);
-        imageView.setFitHeight(180);
+        imageView.setFitWidth(320);
+        imageView.setFitHeight(320);
         imageView.setPreserveRatio(true);
         
         try {
             String monsterName = monster.getName();
             String imagePath = "file:src/com/esiea/pootp/assets/sprite/" + monsterName + ".png";
             
-            Image image = new Image(imagePath, 180, 180, true, true);
+            Image image = new Image(imagePath, 320, 320, true, true);
             
             // Vérifier si l'image s'est chargée correctement
             if (image.isError()) {
@@ -584,8 +584,8 @@ public class BattleGUI extends Battle {
             view.sprite = loadMonsterSprite(monster);
         } else {
             view.sprite = new ImageView();
-            view.sprite.setFitWidth(180);
-            view.sprite.setFitHeight(180);
+            view.sprite.setFitWidth(320);
+            view.sprite.setFitHeight(320);
             view.sprite.setStyle("-fx-border-color: " + accentColor + "; -fx-border-width: 2;");
         }
         
