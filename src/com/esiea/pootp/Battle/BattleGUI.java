@@ -1187,8 +1187,8 @@ public class BattleGUI extends Battle {
 
         StackPane.setAlignment(viewP1.container, Pos.BOTTOM_LEFT);
         StackPane.setAlignment(viewP2.container, Pos.TOP_RIGHT);
-        StackPane.setMargin(viewP1.container, new Insets(0, 0, 60, 80));
-        StackPane.setMargin(viewP2.container, new Insets(40, 80, 0, 0));
+        StackPane.setMargin(viewP1.container, new Insets(0, 0, 50, 50));
+        StackPane.setMargin(viewP2.container, new Insets(50, 50, 0, 0));
 
         monsterLayer.getChildren().addAll(viewP1.container, viewP2.container);
 
