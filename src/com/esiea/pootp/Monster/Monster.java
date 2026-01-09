@@ -14,13 +14,13 @@ import com.esiea.pootp.Status.Status;
  * appliquer des effets spéciaux/passifs.
  */
 public abstract class Monster {
-    public String name;
-    public int health;
-    public int power;
-    public int defense;
-    public int speed;
-    public int currentHealth;
-    public List<AttackMonster> attacks;
+    private String name;
+    private int health;
+    private int power;
+    private int defense;
+    private int speed;
+    private int currentHealth;
+    private List<AttackMonster> attacks;
     private Status status;
 
     /**
@@ -48,7 +48,7 @@ public abstract class Monster {
      */
     public boolean hasAvailableAttacks() {
         for (AttackMonster attack : attacks) {
-            if (attack.nbUses > 0) {
+            if (attack.getNbUses() > 0) {
                 return true;
             }
         }
@@ -69,6 +69,10 @@ public abstract class Monster {
 
     public int getDefense() {
         return defense;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
     }
 
     public int getSpeed() {

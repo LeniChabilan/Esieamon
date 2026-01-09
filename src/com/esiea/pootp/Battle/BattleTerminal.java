@@ -77,7 +77,7 @@ public class BattleTerminal extends Battle {
                              " ATK:" + monster.getPower() + 
                              " DEF:" + monster.getDefense() + 
                              " SPD:" + monster.getSpeed() +
-                             " (" + monster.attacks.size() + " attaques)");
+                             " (" + monster.getAttacks().size() + " attaques)");
         }
         int nbMonstersChoosen = 0;
         while (nbMonstersChoosen < teamSize) {
@@ -92,7 +92,7 @@ public class BattleTerminal extends Battle {
                 if (monsterCopy != null) {
                     player.monsters.add(monsterCopy);
                     System.out.println("✓ " + monsterCopy.getName() + " ajouté avec " + 
-                                     monsterCopy.attacks.size() + " attaques !");
+                                     monsterCopy.getAttacks().size() + " attaques !");
                     nbMonstersChoosen++;
                 }
             }
@@ -353,8 +353,8 @@ public class BattleTerminal extends Battle {
         int displayIndex = 1;
         for (int i = 0; i < player.monsters.size(); i++) {
             Monster monster = player.monsters.get(i);
-            if (monster.currentHealth > 0 && i != player.currentMonsterIndex) {
-                System.out.println(displayIndex + ". " + monster.getName() + " (HP: " + monster.currentHealth + ")");
+            if (monster.getCurrentHealth() > 0 && i != player.currentMonsterIndex) {
+                System.out.println(displayIndex + ". " + monster.getName() + " (HP: " + monster.getCurrentHealth() + ")");
                 indexMap.put(displayIndex, i);
                 displayIndex++;
             }
@@ -442,7 +442,7 @@ public class BattleTerminal extends Battle {
         
         // Get current monster and its attacks
         var currentMonster = player.getCurrentMonster();
-        var attacks = currentMonster.attacks;
+        var attacks = currentMonster.getAttacks();
 
         if (currentMonster.hasAvailableAttacks() == false) {
             System.out.println(color + "\n" + player.getName() + ", votre monstre " + currentMonster.getName() + " n'a plus d'attaques disponibles !" + COLOR_RESET);

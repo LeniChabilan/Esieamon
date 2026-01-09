@@ -383,7 +383,7 @@ public class BattleGUI extends Battle {
         var monsters = parser.getAvailableMonsters();
         for (var m : monsters) {
             CheckBox cb = new CheckBox(m.getName() + "  |  HP:" + m.getHealth() + " ATK:" + m.getPower() + " DEF:" + m.getDefense() + " SPD:" + m.getSpeed() +
-                                       "  (" + m.attacks.size() + " attaques)");
+                                       "  (" + m.getAttacks().size() + " attaques)");
             cb.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
             cb.setUserData(m.getName());
             checkboxContainer.getChildren().add(cb);
@@ -820,7 +820,7 @@ public class BattleGUI extends Battle {
         attackList.setAlignment(Pos.CENTER);
 
         java.util.List<Attack> available = new java.util.ArrayList<>();
-        for (AttackMonster atk : monster.attacks) {
+        for (AttackMonster atk : monster.getAttacks()) {
             if (atk.getNbUses() > 0) {
                 available.add(atk);
             }

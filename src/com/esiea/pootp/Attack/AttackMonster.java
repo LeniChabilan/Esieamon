@@ -9,12 +9,11 @@ import java.util.HashMap;
  * taux d'échec et type). Gère l'application des statuts, du terrain et des dégâts.
  */
 public class AttackMonster extends Attack {
-    public int power;
-    public int nbUses;
-    public int maxUses;
-    public double failureRate;
-    public AttackType type;
-
+    private int power;
+    private int nbUses;
+    private int maxUses;
+    private double failureRate;
+    private AttackType type;
     /**
      * Construit une attaque de monstre.
      * @param name nom de l'attaque
@@ -70,9 +69,9 @@ public class AttackMonster extends Attack {
         double base = ((11.0 * this.power * attacker.getPower()) / (25.0 * defender.getDefense())) + 2.0;
         int damage = (int) Math.round(base * coef * typeEffectiveness);
         // Appliquer les dégâts
-        defender.currentHealth -= damage;
-        if (defender.currentHealth < 0) {
-            defender.currentHealth = 0;
+        defender.setCurrentHealth(defender.getCurrentHealth() - damage);
+        if (defender.getCurrentHealth() < 0) {
+            defender.setCurrentHealth(0);
         }
         // Préparer le résultat
         result.put("damage", Integer.toString(damage));
@@ -88,6 +87,7 @@ public class AttackMonster extends Attack {
         result.put("defenderName", defender.getName());
         return result;
     }
+
 
     private double getTypeEffectiveness(AttackType attackType, Monster defender) {
         double effectiveness = 1.0;

@@ -45,7 +45,7 @@ public class Player {
      */
     public boolean hasUsableMonsters() {
         for (Monster monster : monsters) {
-            if (monster.currentHealth > 0) {
+            if (monster.getCurrentHealth() > 0) {
                 return true;
             }
         }
@@ -78,7 +78,7 @@ public class Player {
         HashMap<Integer, Monster> available = new HashMap<>();
         int index = 0;
         for (Monster monster : monsters) {
-            if (monster.currentHealth > 0) {
+            if (monster.getCurrentHealth() > 0) {
                 available.put(index, monster);
                 index++;
             }
