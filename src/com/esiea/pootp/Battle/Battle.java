@@ -4,6 +4,10 @@ import com.esiea.pootp.Player.Player;
 import com.esiea.pootp.Ground.*;
 import com.esiea.pootp.Parser.Parser;
 
+/**
+ * Base abstraite d'une bataille Esieamon (Terminal ou GUI).
+ * Contient le contexte commun: joueurs, parser, taille d'équipe et terrain.
+ */
 public abstract class Battle {
     public Player player1;
     public Player player2;
@@ -33,6 +37,8 @@ public abstract class Battle {
         return this.ground;
     }
 
-    // Méthode abstraite pour démarrer la bataille
+    /**
+     * Méthode abstraite pour démarrer la bataille (à implémenter selon le mode d'IHM).
+     */
     public abstract void startBattle();
 }

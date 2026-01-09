@@ -13,6 +13,10 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
 
+/**
+ * Interface terminal pour jouer à Esieamon dans la console.
+ * Gère la sélection des monstres, la boucle de combat et les actions des joueurs.
+ */
 public class BattleTerminal extends Battle {
 
     public BattleTerminal() {
@@ -99,7 +103,7 @@ public class BattleTerminal extends Battle {
     }
 
     public void startBattle() {
-        // Player setup
+        // Initialisation des joueurs
         Scanner scanner = new Scanner(System.in);
         System.out.print(COLOR_BLUE + "Nom du Joueur 1: " + COLOR_RESET);
         String player1Name = scanner.nextLine();
@@ -109,18 +113,18 @@ public class BattleTerminal extends Battle {
         String player2Name = scanner.nextLine();
         this.player2 = new Player(player2Name);
 
-        //team size
+        // Taille de l'équipe
         System.out.print("Taille de l'équipe (nombre de monstres par joueur): ");
         this.teamSize = scanner.nextInt();
         scanner.nextLine(); 
 
-        // Monster selection
+        // Sélection des monstres
         selectMonstersForPlayer(player1, parser, COLOR_BLUE);
         selectMonstersForPlayer(player2, parser, COLOR_ORANGE);
 
-        // Battle loop
+        // Boucle de combat
         while (!isOver()) {
-            // Players 1 choose actions
+            // Le joueur 1 choisit son action
             ActionType action1 = chooseAction(player1, COLOR_BLUE);
             Attack attack1 = null;
             Integer switchIndex1 = null;
@@ -137,7 +141,7 @@ public class BattleTerminal extends Battle {
                     break;
             }
 
-            // Player 2 choose actions
+            // Le joueur 2 choisit son action
             ActionType action2 = chooseAction(player2, COLOR_ORANGE);
             Attack attack2 = null;
             Integer switchIndex2 = null;
@@ -154,7 +158,7 @@ public class BattleTerminal extends Battle {
                     break;
             }
 
-            // Perform switch actions
+            // Appliquer les changements de monstres
             if (action1 == ActionType.SWITCH) {
                 switchMonster(player1, switchIndex1, COLOR_BLUE);
             }
@@ -162,7 +166,7 @@ public class BattleTerminal extends Battle {
                 switchMonster(player2, switchIndex2, COLOR_ORANGE);
             }
 
-            // Perform Item actions
+            // Appliquer l'utilisation d'objets
             if (action1 == ActionType.ITEM) {
                 useItem(player1, itemIndex1, COLOR_BLUE);
             }
@@ -170,7 +174,7 @@ public class BattleTerminal extends Battle {
                 useItem(player2, itemIndex2, COLOR_ORANGE);
             }
 
-            // Perform Status effects
+            // Appliquer les effets de statut
             String status1Name = player1.getCurrentMonster().getStatus().getName();
             String status2Name = player2.getCurrentMonster().getStatus().getName();
             
@@ -191,7 +195,7 @@ public class BattleTerminal extends Battle {
                 System.out.println("\n" + COLOR_ORANGE + statusEffect2.get("statusEffect") + COLOR_RESET);
             }
 
-            // Check if monsters can attack after status effects
+            // Vérifier si les monstres peuvent attaquer après les statuts
             boolean canAttack1 = !statusEffect1.containsKey("attackAble") || Boolean.parseBoolean(statusEffect1.get("attackAble"));
             boolean canAttack2 = !statusEffect2.containsKey("attackAble") || Boolean.parseBoolean(statusEffect2.get("attackAble"));
             if (attack1 != null && !canAttack1) {
@@ -203,7 +207,7 @@ public class BattleTerminal extends Battle {
                 attack2 = null;
             }
 
-            // Perform Passive Effects
+            // Appliquer les effets passifs
             String passiveEffect1 = player1.getCurrentMonster().applyPassiveEffect(this);
             String passiveEffect2 = player2.getCurrentMonster().applyPassiveEffect(this);
             if (!passiveEffect1.isEmpty()) {
@@ -213,7 +217,7 @@ public class BattleTerminal extends Battle {
                 System.out.println(COLOR_ORANGE + passiveEffect2 + COLOR_RESET);
             }
 
-            // Perform Ground effects
+            // Appliquer les effets du terrain
             HashMap<String, String> groundEffect = ground.applyGroundEffect(player1.getCurrentMonster(), player2.getCurrentMonster(), this);
             if (groundEffect.containsKey("monster1_statusEffect")) {
                 System.out.println(COLOR_BLUE + groundEffect.get("monster1_statusEffect") + COLOR_RESET);
@@ -221,7 +225,7 @@ public class BattleTerminal extends Battle {
             if (groundEffect.containsKey("monster2_statusEffect")) {
                 System.out.println(COLOR_ORANGE + groundEffect.get("monster2_statusEffect") + COLOR_RESET);
             }
-            // Check if monster can attack after ground effects
+            // Vérifier si un monstre peut attaquer après les effets du terrain
             if (attack1 != null && groundEffect.containsKey("monster1_attackAble") && Boolean.parseBoolean(groundEffect.get("monster1_attackAble")) == false) {
                 System.out.println(COLOR_BLUE + player1.getCurrentMonster().getName() + " ne peut pas attaquer à cause du terrain !" + COLOR_RESET);
                 attack1 = null;
@@ -230,12 +234,12 @@ public class BattleTerminal extends Battle {
                 System.out.println(COLOR_ORANGE + player2.getCurrentMonster().getName() + " ne peut pas attaquer à cause du terrain !" + COLOR_RESET);
                 attack2 = null;
             }
-            // Check if ground is cured
+            // Vérifier si le terrain a disparu
             if (groundEffect.containsKey("groundCured") && Boolean.parseBoolean(groundEffect.get("groundCured"))) {
                 System.out.println("\nLe terrain " + ground.getName() + " a disparu !");
             }
 
-            // Ckeck if a monster is KO before attacking
+            // Vérifier si un monstre est K.O. avant d'attaquer
             if (player1.getCurrentMonster().getCurrentHealth() <= 0) {
                 displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
                 attack1 = null;
@@ -245,9 +249,9 @@ public class BattleTerminal extends Battle {
                 attack2 = null;
             }
 
-            // Perform attack actions
+            // Appliquer les actions d'attaque
             if (attack1 != null && attack2 != null) {
-                // Both players chose to attack
+                // Les deux joueurs ont choisi d'attaquer
                 if (player1.getCurrentMonster().getSpeed() >= player2.getCurrentMonster().getSpeed()) {
                     displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster(), this)); 
                     if (player2.getCurrentMonster().getCurrentHealth() > 0) {
@@ -266,13 +270,13 @@ public class BattleTerminal extends Battle {
                     }
                 }
             } else if (attack1 != null) {
-                // Only player 1 attacks
+                // Seul le joueur 1 attaque
                 displayAttackAction(attack1.performAttack(player1.getCurrentMonster(), player2.getCurrentMonster(), this));
                 if (player2.getCurrentMonster().getCurrentHealth() <= 0) {
                     displayMonsterKO(player2.getCurrentMonster(), COLOR_ORANGE);
                 }
             } else if (attack2 != null) {
-                // Only player 2 attacks
+                // Seul le joueur 2 attaque
                 displayAttackAction(attack2.performAttack(player2.getCurrentMonster(), player1.getCurrentMonster(), this));
                 if (player1.getCurrentMonster().getCurrentHealth() <= 0) {
                     displayMonsterKO(player1.getCurrentMonster(), COLOR_BLUE);
@@ -280,7 +284,7 @@ public class BattleTerminal extends Battle {
             }
             displayCurrentStatus();
 
-            // Check for KO and switch monsters if needed
+            // Vérifier les K.O. et effectuer un changement si nécessaire
             if (player1.getCurrentMonster().getCurrentHealth() <= 0 && player1.hasUsableMonsters()) {
                 switchMonster(player1, chooseMonster(player1, COLOR_BLUE), COLOR_BLUE);
             }

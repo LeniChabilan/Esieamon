@@ -12,16 +12,49 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Analyseur du fichier de données du jeu (game_data.txt).
+ *
+ * Format attendu (sections en majuscules terminées par End...):
+ * - Section "Monster" ... "EndMonster" avec lignes clés/valeurs:
+ *   Name <nom>
+ *   Type <FIRE|WATER|GRASS|ELECTRIC|EARTH|INSECT>
+ *   HP Max <valeur>
+ *   Speed Value <valeur>
+ *   Attack Value <valeur>
+ *   Defense Value <valeur>
+ *   Chances spécifiques selon le type (Paralysis, Burn, HealChance, BurrowChance,
+ *   FloodChance, FallChance) sous forme "<Clé> <valeurDouble>".
+ * - Section "Attack" ... "EndAttack":
+ *   Name <nom>
+ *   Type <NORMAL|FIRE|WATER|GRASS|ELECTRIC|EARTH|INSECT>
+ *   Power <int>
+ *   NbUse <int>
+ *   Fail <double 0..1>
+ * - Section "AttackMonster" ... "EndAttackMonster":
+ *   Monster <nomMonstre>
+ *   Attack <nomAttaque> (répétable)
+ *
+ * La lecture s'effectue en deux passes: on lit d'abord toutes les données
+ * (monstres, attaques et associations), puis on instancie les objets finaux.
+ */
 public class Parser {
     
     private Map<String, AttackMonster> attacksMap;
     private Map<String, Monster> monstersMap;
     
+    /**
+     * Initialise les tables d'attaques et de monstres.
+     */
     public Parser() {
         this.attacksMap = new HashMap<>();
         this.monstersMap = new HashMap<>();
     }
     
+    /**
+     * Parse le fichier de données et peuple les structures internes.
+     * @param filePath chemin du fichier (ex: ./src/.../game_data.txt)
+     */
     public void parseFile(String filePath) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         String line;
@@ -66,10 +99,20 @@ public class Parser {
         }
     }
     
+    /**
+     * @return la liste des monstres disponibles (instances modèles, non destinées
+     *         à être utilisées directement en combat)
+     */
     public List<Monster> getAvailableMonsters() {
         return new ArrayList<>(monstersMap.values());
     }
     
+    /**
+     * Crée une copie indépendante d'un monstre nommé (statistiques + attaques),
+     * pour être attribuée à un joueur sans partager l'état avec le modèle.
+     * @param name nom du monstre
+     * @return une nouvelle instance ou null si inconnue
+     */
     public Monster getMonsterCopy(String name) {
         Monster original = monstersMap.get(name);
         if (original == null) {
@@ -87,6 +130,9 @@ public class Parser {
         return copy;
     }
     
+    /**
+     * Parse une section Monster jusqu'à EndMonster.
+     */
     private MonsterData parseMonster(BufferedReader reader) throws IOException {
         String name = null;
         String type = null;
@@ -147,6 +193,9 @@ public class Parser {
         return new MonsterData(name, type, hp, speed, attack, defense, specialChance1, specialChance2);
     }
     
+    /**
+     * Parse une section Attack jusqu'à EndAttack.
+     */
     private AttackMonster parseAttack(BufferedReader reader) throws IOException {
         String name = null;
         AttackType type = null;
@@ -190,6 +239,10 @@ public class Parser {
         return new AttackMonster(name, power, nbUse, fail, type);
     }
     
+    /**
+     * Parse une section AttackMonster jusqu'à EndAttackMonster et enregistre
+     * les associations monstre->liste d'attaques.
+     */
     private void parseAttackMonster(BufferedReader reader, Map<String, List<String>> monsterAttacksMap) throws IOException {
         String monsterName = null;
         List<String> attacks = new ArrayList<>();
@@ -220,6 +273,9 @@ public class Parser {
         }
     }
     
+    /**
+     * Crée une instance de monstre du bon type à partir des données lues.
+     */
     private Monster createMonster(MonsterData data) {
         switch (data.type.toUpperCase()) {
             case "FIRE":
@@ -245,6 +301,10 @@ public class Parser {
         }
     }
     
+    /**
+     * Crée une copie indépendante du monstre donné, conservant le type exact et
+     * les paramètres spécifiques (chances, etc.).
+     */
     private Monster createMonsterCopy(Monster original) {
         if (original instanceof FireMonster) {
             return new FireMonster(original.getName(), original.getHealth(), 

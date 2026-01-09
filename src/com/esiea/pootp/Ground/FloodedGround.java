@@ -6,11 +6,19 @@ import com.esiea.pootp.Battle.Battle;
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Monster.WaterMonster;
 
+/**
+ * Terrain Inondé: chaque tour, les monstres non Eau ont une chance de glisser
+ * et de perdre des PV, devenant incapables d'attaquer ce tour. Le terrain
+ * disparaît après une durée aléatoire (1 à 3 tours).
+ */
 public class FloodedGround extends Ground {
     private double fallChance;
     private int maxDuration;
 
 
+    /**
+     * @param fallChance probabilité pour un monstre non Eau de glisser à chaque tour
+     */
     public FloodedGround(double fallChance) {
         super("Inondé");
         this.fallChance = fallChance;
@@ -19,11 +27,17 @@ public class FloodedGround extends Ground {
     }
 
 
+    /** @return probabilité de glissade */
     public double getFallChance() {
         return fallChance;
     }
 
     @Override
+    /**
+     * Applique les effets du terrain: dégâts et blocage possible.
+     * Renseigne les clés: monster1_attackAble, monster2_attackAble,
+     * monster1_statusEffect, monster2_statusEffect, groundCured.
+     */
     public HashMap<String, String> applyGroundEffect(Monster monster1, Monster monster2, Battle battle) {
         HashMap<String, String> result = new HashMap<>();
         // Incrémente la durée du terrain à chaque tour
