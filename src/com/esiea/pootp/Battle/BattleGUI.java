@@ -345,6 +345,18 @@ public class BattleGUI extends Battle {
         alert.showAndWait();
     }
 
+    private void showGameOverAlert(String title, String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.setOnCloseRequest(e -> {
+            stopBackgroundMusic();
+            System.exit(0);
+        });
+        alert.showAndWait();
+    }
+
     private void showMonsterSelection() {
         primaryStage.setTitle("Sélection des monstres");
         primaryStage.setWidth(1200);
@@ -587,11 +599,17 @@ public class BattleGUI extends Battle {
         double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / maxHp));
 
         view.hpText = new Label(currentHp + " / " + maxHp + " HP");
-        view.hpText.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 12;");
+        view.hpText.setStyle("-fx-text-fill: black; -fx-font-size: 12;");
 
         view.hpBar = new ProgressBar(hpRatio);
         view.hpBar.setPrefWidth(140);
-        view.hpBar.setStyle("-fx-accent: " + accentColor + ";");
+        view.hpBar.setPrefHeight(20);
+        view.hpBar.setStyle("-fx-accent: " + accentColor + "; -fx-padding: 2; -fx-border-color: black; -fx-border-width: 1; -fx-control-inner-background: white;");
+
+        // Créer une HBox pour mettre HP et barre côte à côte
+        HBox hpContainer = new HBox(8);
+        hpContainer.setAlignment(Pos.CENTER);
+        hpContainer.getChildren().addAll(view.hpText, view.hpBar);
 
         // Charger le sprite du Pokémon
         if (monster != null) {
@@ -608,9 +626,9 @@ public class BattleGUI extends Battle {
         spriteContainer.getChildren().add(view.sprite);
 
         view.name = new Label(monster != null ? monster.getName() : "Aucun monstre");
-        view.name.setStyle("-fx-text-fill: #f0f0f0; -fx-font-size: 16; -fx-font-weight: bold;");
+        view.name.setStyle("-fx-text-fill: black; -fx-font-size: 16; -fx-font-weight: bold;");
 
-        monsterDisplay.getChildren().addAll(view.hpText, view.hpBar, spriteContainer, view.name);
+        monsterDisplay.getChildren().addAll(view.name, hpContainer, spriteContainer);
         view.container = monsterDisplay;
         return view;
     }
@@ -792,9 +810,7 @@ public class BattleGUI extends Battle {
         Label title = new Label("Choisissez une attaque pour " + p.getName() + " / " + monster.getName());
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane attackList = new FlowPane();
-        attackList.setHgap(10);
-        attackList.setVgap(10);
+        HBox attackList = new HBox(10);
         attackList.setAlignment(Pos.CENTER);
 
         java.util.List<Attack> available = new java.util.ArrayList<>();
@@ -824,8 +840,10 @@ public class BattleGUI extends Battle {
         Button back = new Button("Retour");
         styleButton(back, "#555555", "#666666");
         back.setOnAction(e -> showActionButtons());
+        
+        attackList.getChildren().add(back);
 
-        bottomContainer.getChildren().addAll(title, attackList, back);
+        bottomContainer.getChildren().addAll(title, attackList);
     }
 
     private void selectAttack(Attack attack) {
@@ -1039,7 +1057,8 @@ public class BattleGUI extends Battle {
         if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
             String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
             appendLog("Le combat est terminé. Vainqueur: " + winner);
-            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            stopBackgroundMusic();
+            showGameOverAlert("Fin du combat", winner + " a gagné!");
             return;
         }
 
@@ -1084,8 +1103,7 @@ public class BattleGUI extends Battle {
         if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
             String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
             appendLog("Le combat est terminé. Vainqueur: " + winner);
-            stopBackgroundMusic();
-            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            showGameOverAlert("Fin du combat", winner + " a gagné!");
             return;
         }
 
@@ -1204,10 +1222,10 @@ public class BattleGUI extends Battle {
         viewP1 = createMonsterDisplay(player1, "#4682b4");
         viewP2 = createMonsterDisplay(player2, "#ff8c00");
 
-        StackPane.setAlignment(viewP1.container, Pos.BOTTOM_LEFT);
-        StackPane.setAlignment(viewP2.container, Pos.TOP_RIGHT);
-        StackPane.setMargin(viewP1.container, new Insets(0, 0, 60, 80));
-        StackPane.setMargin(viewP2.container, new Insets(40, 80, 0, 0));
+        StackPane.setAlignment(viewP1.container, Pos.CENTER_LEFT);
+        StackPane.setAlignment(viewP2.container, Pos.CENTER_RIGHT);
+        StackPane.setMargin(viewP1.container, new Insets(150, 600, 0, 0));
+        StackPane.setMargin(viewP2.container, new Insets(0, 0, 150, 600));
 
         monsterLayer.getChildren().addAll(viewP1.container, viewP2.container);
 
