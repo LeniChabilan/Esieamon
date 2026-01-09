@@ -9,8 +9,23 @@ SRC_DIR = src
 BIN_DIR = classes
 LIB_DIR = lib
 
-# JavaFX JARs (local)
-JAVAFX_PATH = $(LIB_DIR)/javafx-base-21.0.1-linux.jar:$(LIB_DIR)/javafx-graphics-21.0.1-linux.jar:$(LIB_DIR)/javafx-controls-21.0.1-linux.jar:$(LIB_DIR)/javafx-fxml-21.0.1-linux.jar
+# Detect OS and set path separator
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    OS_TYPE = linux
+    PATH_SEP = :
+endif
+ifeq ($(UNAME_S),Darwin)
+    OS_TYPE = mac
+    PATH_SEP = :
+endif
+ifeq ($(OS),Windows_NT)
+    OS_TYPE = win
+    PATH_SEP = ;
+endif
+
+# JavaFX JARs (local) - platform-specific
+JAVAFX_PATH = $(LIB_DIR)/javafx-base-21.0.1-$(OS_TYPE).jar$(PATH_SEP)$(LIB_DIR)/javafx-graphics-21.0.1-$(OS_TYPE).jar$(PATH_SEP)$(LIB_DIR)/javafx-controls-21.0.1-$(OS_TYPE).jar$(PATH_SEP)$(LIB_DIR)/javafx-fxml-21.0.1-$(OS_TYPE).jar
 
 # Main package
 MAIN_CLASS = com.esiea.pootp.EsieamonExecutable
@@ -34,7 +49,7 @@ $(BIN_DIR):
 # Execution with JavaFX (classpath only)
 .PHONY: run
 run: compile
-	@$(JAVA) -cp $(BIN_DIR):$(JAVAFX_PATH) $(MAIN_CLASS)
+	@$(JAVA) -cp $(BIN_DIR)$(PATH_SEP)$(JAVAFX_PATH) $(MAIN_CLASS)
 
 # Clean
 .PHONY: clean
