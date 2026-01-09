@@ -5,12 +5,19 @@ import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Ground.Ground;
 import com.esiea.pootp.Ground.FloodedGround;
 
+/**
+ * Statut Brûlé: inflige des dégâts chaque tour. Se guérit automatiquement
+ * si le terrain est Inondé.
+ */
 public class BurnedStatus extends Status {
     public BurnedStatus() {
         super("Brûlé");
     }
 
     @Override
+    /**
+     * Dégâts en fonction de la puissance du monstre. Guéri sur terrain inondé.
+     */
     public HashMap<String, String> performStatus(Monster monster, Ground ground) {
         HashMap<String, String> result = new HashMap<>();
         result.put("attackAble", "true");

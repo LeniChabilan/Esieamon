@@ -4,6 +4,10 @@ import java.util.HashMap;
 import com.esiea.pootp.Monster.Monster;
 import com.esiea.pootp.Ground.Ground;
 
+/**
+ * Statut Enterré: le monstre double sa défense pendant une durée aléatoire
+ * de 1 à 3 tours, puis revient à sa valeur initiale.
+ */
 public class BurrowedStatus extends Status {
     private int nbTurnsBurrowed = 0;
     private int durationBurrowed = 0;
@@ -15,6 +19,10 @@ public class BurrowedStatus extends Status {
     }
 
     @Override
+    /**
+     * Au premier tour, double la défense; au dernier, restaure la valeur initiale
+     * et guérit le statut.
+     */
     public HashMap<String, String> performStatus(Monster monster, Ground ground) {
         HashMap<String, String> result = new HashMap<>();
         

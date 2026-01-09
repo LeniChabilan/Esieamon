@@ -2,12 +2,30 @@ package com.esiea.pootp.Battle;
 
 import java.io.File;
 
+/**
+ * Lecteur de musique minimaliste pour les combats.
+ * <p>
+ * Cette classe lance la lecture d'un fichier audio dans un thread dédié et
+ * s'appuie sur des lecteurs système disponibles (ffplay, paplay, mpv, aplay).
+ * La lecture est bouclée tant que {@link #stop()} n'est pas appelée.
+ * <p>
+ * Conçu pour un usage simple: {@link #play(File)} pour démarrer et {@link #stop()} pour arrêter.
+ * Les erreurs sont loggées en console avec le préfixe "[AUDIO]".
+ */
 public class MusicPlayer {
     
     private Process audioProcess;
     private Thread audioThread;
     private volatile boolean audioPlaying = false;
     
+    /**
+     * Démarre la lecture en boucle d'un fichier audio dans un thread en arrière-plan.
+     * <p>
+     * Si une lecture est déjà en cours, l'appel est ignoré.
+     * Le thread de lecture est marqué en "daemon" afin de ne pas empêcher l'arrêt de l'application.
+     *
+     * @param musicFile fichier audio à lire (chemin absolu recommandé)
+     */
     public void play(File musicFile) {
         if (audioPlaying) {
             return; // Déjà en cours de lecture
@@ -24,6 +42,17 @@ public class MusicPlayer {
         }
     }
     
+    /**
+     * Arrête proprement la lecture en cours.
+     * <p>
+     * Cette méthode:
+     * <ul>
+     *   <li>Indique au thread de lecture de s'arrêter,</li>
+     *   <li>Détruit le processus système associé au lecteur, avec secours forcé au besoin,</li>
+     *   <li>Tente de tuer d'éventuels lecteurs restants via <code>killall</code>,</li>
+     *   <li>Attend la fin du thread (maximum ~1 seconde).</li>
+     * </ul>
+     */
     public void stop() {
         audioPlaying = false;
         
@@ -61,6 +90,11 @@ public class MusicPlayer {
         System.out.println("[AUDIO] Musique arrêtée");
     }
     
+    /**
+     * Boucle de lecture tant que l'état {@link #audioPlaying} reste à vrai.
+     *
+     * @param musicFile fichier audio à lire
+     */
     private void playAudioLoop(File musicFile) {
         try {
             while (audioPlaying) {
@@ -72,6 +106,15 @@ public class MusicPlayer {
         }
     }
     
+    /**
+     * Tente de lire le fichier avec différents lecteurs système.
+     * <p>
+     * Ordre d'essai: ffplay, paplay, mpv, aplay. La méthode bloque tant que le
+     * processus du lecteur est actif et que la lecture n'est pas interrompue.
+     *
+     * @param musicFile fichier audio à lire
+     * @return {@code true} si un lecteur a pu être lancé, sinon {@code false}
+     */
     private boolean playWithSystemCommand(File musicFile) {
         String[] players = {"ffplay", "paplay", "mpv", "aplay"};
         String[] commands = {
