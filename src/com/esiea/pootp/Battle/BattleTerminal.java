@@ -203,16 +203,6 @@ public class BattleTerminal extends Battle {
                 attack2 = null;
             }
 
-            // Perform Special Effects
-            String specialEffect1 = player1.getCurrentMonster().applySpecialEffect(this);
-            String specialEffect2 = player2.getCurrentMonster().applySpecialEffect(this);
-            if (!specialEffect1.isEmpty()) {
-                System.out.println(COLOR_BLUE + specialEffect1 + COLOR_RESET);
-            }
-            if (!specialEffect2.isEmpty()) {
-                System.out.println(COLOR_ORANGE + specialEffect2 + COLOR_RESET);
-            }
-
             // Perform Passive Effects
             String passiveEffect1 = player1.getCurrentMonster().applyPassiveEffect(this);
             String passiveEffect2 = player2.getCurrentMonster().applyPassiveEffect(this);

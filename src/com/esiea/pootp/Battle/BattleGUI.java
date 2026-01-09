@@ -70,6 +70,7 @@ public class BattleGUI extends Battle {
     private Label hintLabel;
     private TextArea logArea;
     private BorderPane battlefieldArea;
+    private Label battleTitle;
 
     private MonsterView viewP1;
     private MonsterView viewP2;
@@ -581,6 +582,11 @@ public class BattleGUI extends Battle {
         } catch (Exception e) {
             root.setStyle("-fx-background-color: linear-gradient(#1e1e28, #0f1622);");
         }
+        
+        // Mettre à jour le titre avec le terrain actuel
+        if (battleTitle != null) {
+            battleTitle.setText("Bataille - Terrain : " + ground.getName());
+        }
     }
     
     
@@ -626,7 +632,15 @@ public class BattleGUI extends Battle {
         spriteContainer.setAlignment(Pos.CENTER);
         spriteContainer.getChildren().add(view.sprite);
 
-        view.name = new Label(monster != null ? monster.getName() : "Aucun monstre");
+        String monsterDisplayName = "Aucun monstre";
+        if (monster != null) {
+            monsterDisplayName = monster.getName();
+            String status = monster.getStatus().getName();
+            if (!status.equals("Normal")) {
+                monsterDisplayName += " (" + status + ")";
+            }
+        }
+        view.name = new Label(monsterDisplayName);
         view.name.setStyle("-fx-text-fill: black; -fx-font-size: 16; -fx-font-weight: bold;");
 
         monsterDisplay.getChildren().addAll(view.name, hpContainer, spriteContainer);
@@ -649,7 +663,12 @@ public class BattleGUI extends Battle {
         int maxHp = monster.getHealth();
         int currentHp = monster.getCurrentHealth();
         double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / Math.max(1, maxHp)));
-        view.name.setText(monster.getName());
+        String displayName = monster.getName();
+        String status = monster.getStatus().getName();
+        if (!status.equals("Normal")) {
+            displayName += " (" + status + ")";
+        }
+        view.name.setText(displayName);
         view.hpText.setText(currentHp + " / " + maxHp + " HP");
         view.hpBar.setProgress(hpRatio);
 
@@ -940,20 +959,6 @@ public class BattleGUI extends Battle {
             a2 = null;
         }
 
-        // Appliquer les effets spéciaux
-        if (m1 != null) {
-            String specialEffect1 = m1.applySpecialEffect(this);
-            if (!specialEffect1.isEmpty()) {
-                appendLog(specialEffect1);
-            }
-        }
-        if (m2 != null) {
-            String specialEffect2 = m2.applySpecialEffect(this);
-            if (!specialEffect2.isEmpty()) {
-                appendLog(specialEffect2);
-            }
-        }
-
         // Appliquer les effets passifs
         if (m1 != null) {
             String passiveEffect1 = m1.applyPassiveEffect(this);
@@ -1196,11 +1201,11 @@ public class BattleGUI extends Battle {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #1e1e28;");
 
-        Label title = new Label("Bataille - Terrain : " + ground.getName());
-        title.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 30; -fx-font-weight: bold;");
-        BorderPane.setAlignment(title, Pos.CENTER);
-        BorderPane.setMargin(title, new Insets(20, 0, 12, 0));
-        root.setTop(title);
+        battleTitle = new Label("Bataille - Terrain : " + ground.getName());
+        battleTitle.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 30; -fx-font-weight: bold;");
+        BorderPane.setAlignment(battleTitle, Pos.CENTER);
+        BorderPane.setMargin(battleTitle, new Insets(20, 0, 12, 0));
+        root.setTop(battleTitle);
 
         // Centre avec l'image de fond et log à droite
         HBox centerContainer = new HBox(12);
@@ -1242,6 +1247,7 @@ public class BattleGUI extends Battle {
         logArea.setWrapText(true);
         logArea.setPrefRowCount(20);
         logArea.setText("Bienvenue dans le combat!\nLes actions seront affichées ici...\n");
+        VBox.setVgrow(logArea, Priority.ALWAYS);
         
         infoPanel.getChildren().addAll(logTitle, logArea);
         centerContainer.getChildren().add(infoPanel);
