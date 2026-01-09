@@ -24,7 +24,7 @@ all: compile
 # Compilation
 .PHONY: compile
 compile: $(BIN_DIR)
-	@$(JAVAC) -d $(BIN_DIR) -sourcepath $(SRC_DIR) $(SOURCES)
+	@$(JAVAC) --release 17 -d $(BIN_DIR) -sourcepath $(SRC_DIR) $(SOURCES)
 
 # Create classes directory if it doesn't exist
 $(BIN_DIR):
