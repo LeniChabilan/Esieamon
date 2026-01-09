@@ -8,7 +8,7 @@ import com.esiea.pootp.Object.ObjectMonster;
 import com.esiea.pootp.Status.BurnedStatus;
 import com.esiea.pootp.Status.NormalStatus;
 import com.esiea.pootp.Status.ParalyzedStatus;
-import com.esiea.pootp.Object.Medicine.MedecineType;
+import com.esiea.pootp.Object.Medicine.MedicineType;
 import com.esiea.pootp.Status.PoisonedStatus;
 
 /**
@@ -17,13 +17,13 @@ import com.esiea.pootp.Status.PoisonedStatus;
  */
 public class Medicine extends ObjectMonster {
     private int weight;
-    private MedecineType medecineType;
+    private MedicineType medecineType;
     
     /**
      * @param weight poids de l'objet
      * @param medecineType type de médicament (effet associé)
      */
-    public Medicine(int weight, MedecineType medecineType) {
+    public Medicine(int weight, MedicineType medecineType) {
         super(weight);
         this.weight = weight;
         this.medecineType = medecineType; 
@@ -54,7 +54,7 @@ public class Medicine extends ObjectMonster {
     }
 
     /** @return type de médicament */
-    public MedecineType getMedecineType() {
+    public MedicineType getMedecineType() {
         return medecineType;
     }
 
