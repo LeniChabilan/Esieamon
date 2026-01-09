@@ -26,6 +26,9 @@ all: compile
 .PHONY: compile
 compile: $(BIN_DIR)
 	@$(JAVAC) --release 17 -d $(BIN_DIR) -sourcepath $(SRC_DIR) -cp $(JAVAFX_PATH) $(SOURCES)
+	@echo "Copying resources..."
+	@cp -r $(SRC_DIR)/com/esiea/pootp/assets $(BIN_DIR)/com/esiea/pootp/ 2>/dev/null || true
+	@cp $(SRC_DIR)/com/esiea/pootp/Parser/game_data.txt $(BIN_DIR)/com/esiea/pootp/Parser/ 2>/dev/null || true
 
 # Create classes directory if it doesn't exist
 $(BIN_DIR):
