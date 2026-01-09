@@ -9,7 +9,7 @@ import com.esiea.pootp.Ground.Ground;
  * La probabilité de guérison augmente avec le nombre de tours.
  */
 public class ParalyzedStatus extends Status {
-    int nbTurnsParalyzed = 0;
+    private int nbTurnsParalyzed = 0;
 
     public ParalyzedStatus() {
         super("Paralysé");

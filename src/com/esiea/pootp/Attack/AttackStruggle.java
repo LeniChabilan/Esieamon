@@ -32,9 +32,9 @@ public class AttackStruggle extends Attack {
         HashMap<String, String> result = new HashMap<>();
         double coefficient = 0.85 + Math.random() * 0.15;
         int damage = (int)(20.0 * attacker.getPower() / defender.getDefense() * coefficient);
-        defender.currentHealth -= damage;
-        if (defender.currentHealth < 0) {
-            defender.currentHealth = 0;
+        defender.setCurrentHealth(defender.getCurrentHealth() - damage);
+        if (defender.getCurrentHealth() < 0) {
+            defender.setCurrentHealth(0);
         }
         result.put("attackName", this.name);
         result.put("attackerName", attacker.getName());

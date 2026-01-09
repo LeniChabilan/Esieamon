@@ -10,8 +10,8 @@ import com.esiea.pootp.Ground.Ground;
  * Un statut peut influencer la capacité à attaquer et infliger des effets à chaque tour.
  */
 public class Status {
-    private String name;
-    private int duration; 
+    protected String name;
+    protected int duration; 
 
     /**
      * @param name nom lisible du statut

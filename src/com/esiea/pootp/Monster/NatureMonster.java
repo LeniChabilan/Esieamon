@@ -18,7 +18,7 @@ public abstract class NatureMonster extends Monster{
      */
     public String applyPassiveEffect(Battle battle) {
         if (battle.getGround() instanceof FloodedGround && this.getCurrentHealth() < this.getHealth()) {
-            int healAmount = (int) (this.health * 0.05);
+            int healAmount = (int) (this.getHealth() * 0.05);
             this.heal(healAmount);
             return this.getName() + " récupère " + healAmount + " points de vie grâce au terrain inondé !";
         }
