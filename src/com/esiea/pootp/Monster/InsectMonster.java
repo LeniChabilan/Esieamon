@@ -2,6 +2,10 @@ package com.esiea.pootp.Monster;
 
 import com.esiea.pootp.Status.PoisonedStatus;
 
+/**
+ * Monstre de type Insecte (Nature). Empoisonne l'adversaire après un certain 
+ * nombre d'attaques spéciales réussies.
+ */
 public class InsectMonster extends NatureMonster {
 
     private int nbAttacksSpe = 0;
@@ -10,15 +14,20 @@ public class InsectMonster extends NatureMonster {
         super(name, health, power, defense, speed);
     }
 
+    /** @return nombre d'attaques spéciales cumulées */
     public int getNbAttacksSpe() {
         return nbAttacksSpe;
     }
 
+    /** @param nbAttacksSpe nouveau compteur d'attaques spéciales */
     public void setNbAttacksSpe(int nbAttacksSpe) {
         this.nbAttacksSpe = nbAttacksSpe;
     }
 
     @Override
+    /**
+     * Empoisonne le défenseur toutes les 3 attaques spéciales.
+     */
     public boolean applyStatus(Monster defender) {
         super.applyStatus(defender);
         nbAttacksSpe++;

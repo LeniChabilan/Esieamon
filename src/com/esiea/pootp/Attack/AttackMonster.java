@@ -4,6 +4,10 @@ import com.esiea.pootp.Battle.*;
 import com.esiea.pootp.Monster.*;
 import java.util.HashMap;
 
+/**
+ * Représente une attaque classique portée par un monstre (avec puissance, PP,
+ * taux d'échec et type). Gère l'application des statuts, du terrain et des dégâts.
+ */
 public class AttackMonster extends Attack {
     public int power;
     public int nbUses;
@@ -11,6 +15,14 @@ public class AttackMonster extends Attack {
     public double failureRate;
     public AttackType type;
 
+    /**
+     * Construit une attaque de monstre.
+     * @param name nom de l'attaque
+     * @param power puissance de l'attaque
+     * @param maxUses nombre maximum d'utilisations (PP)
+     * @param failureRate probabilité d'échec (0.0 à 1.0)
+     * @param type type de l'attaque (FEU, EAU, etc.)
+     */
     public AttackMonster(String name, int power, int maxUses, double failureRate, AttackType type) {
         super(name);
         this.power = power;
@@ -23,14 +35,12 @@ public class AttackMonster extends Attack {
     @Override
     public HashMap<String, String> performAttack(Monster attacker, Monster defender, Battle battle) {
         HashMap<String, String> result = new HashMap<>();
-
-        // Check for available uses
+        // Vérifier les PP restants
         if (nbUses <= 0) {
             return result;
         }
         nbUses--;
-
-        // Check for failure
+        // Vérifier l'échec éventuel
         if (Math.random() < failureRate) {
             result.put("attackName", name);
             result.put("attackerName", attacker.getName());
@@ -39,8 +49,7 @@ public class AttackMonster extends Attack {
             result.put("effectiveness", "l'attaque a échoué !");
             return result;
         }
-
-        // Handle status and ground application
+        // Appliquer les statuts et/ou le terrain si nécessaire
         if (this.type != AttackType.NORMAL) {
             boolean statusApplied = attacker.applyStatus(defender);
             if (statusApplied && this.type != AttackType.EARTH) {
@@ -55,20 +64,17 @@ public class AttackMonster extends Attack {
                 result.put("ground", "Le terrain est maintenant " + battle.getGround().getName() + " !");
             }
         }
-
-        // Calculate damage
+        // Calcul des dégâts
         double coef = 0.85 + Math.random() * 0.15;
         double typeEffectiveness = getTypeEffectiveness(this.type, defender);
         double base = ((11.0 * this.power * attacker.getPower()) / (25.0 * defender.getDefense())) + 2.0;
         int damage = (int) Math.round(base * coef * typeEffectiveness);
-
-        // Apply damage
+        // Appliquer les dégâts
         defender.currentHealth -= damage;
         if (defender.currentHealth < 0) {
             defender.currentHealth = 0;
         }
-
-        // Prepare result
+        // Préparer le résultat
         result.put("damage", Integer.toString(damage));
         if (typeEffectiveness > 1.0) {
             result.put("effectiveness", "c'est super efficace !");
@@ -133,22 +139,37 @@ public class AttackMonster extends Attack {
         return effectiveness;
     }   
 
+    /**
+     * @return puissance de l'attaque
+     */
     public int getPower() {
         return power;
     }
 
+    /**
+     * @return PP restants
+     */
     public int getNbUses() {
         return nbUses;
     }
 
+    /**
+     * @return PP maximum
+     */
     public int getMaxUses() {
         return maxUses;
     }
 
+    /**
+     * @return probabilité d'échec (0.0 à 1.0)
+     */
     public double getFailureRate() {
         return failureRate;
     }
 
+    /**
+     * @return type de l'attaque
+     */
     public AttackType getType() {
         return type;
     }

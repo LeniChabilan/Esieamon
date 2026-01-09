@@ -11,11 +11,18 @@ import com.esiea.pootp.Status.ParalyzedStatus;
 import com.esiea.pootp.Object.Medicine.MedecineType;
 import com.esiea.pootp.Status.PoisonedStatus;
 
-
+/**
+ * Médicament consommable. Peut soigner un statut (Brûlé, Paralysé, Empoisonné)
+ * ou assécher un terrain inondé.
+ */
 public class Medicine extends ObjectMonster {
     private int weight;
     private MedecineType medecineType;
     
+    /**
+     * @param weight poids de l'objet
+     * @param medecineType type de médicament (effet associé)
+     */
     public Medicine(int weight, MedecineType medecineType) {
         super(weight);
         this.weight = weight;
@@ -23,6 +30,9 @@ public class Medicine extends ObjectMonster {
     }
 
     @Override
+    /**
+     * @return nom lisible du médicament
+     */
     public String getName() {
         switch (medecineType) {
             case BURN_HEAL:
@@ -38,15 +48,21 @@ public class Medicine extends ObjectMonster {
         }
     }
 
+    /** @return poids du médicament */
     public int getWeight() {
         return weight;
     }
 
+    /** @return type de médicament */
     public MedecineType getMedecineType() {
         return medecineType;
     }
 
     @Override
+    /**
+     * Applique l'effet du médicament selon son type.
+     * Note: peut retourner null si aucun effet n'a été appliqué.
+     */
     public String use(Monster monster, Battle battle) {
         switch (medecineType) {
             case BURN_HEAL:
