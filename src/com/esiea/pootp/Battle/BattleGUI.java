@@ -27,6 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -715,9 +716,7 @@ public class BattleGUI extends Battle {
         Label title = new Label("Choisissez un monstre à envoyer au combat:");
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane monsterList = new FlowPane();
-        monsterList.setHgap(10);
-        monsterList.setVgap(10);
+        HBox monsterList = new HBox(10);
         monsterList.setAlignment(Pos.CENTER);
 
         for (int i = 0; i < p.monsters.size(); i++) {
@@ -726,8 +725,6 @@ public class BattleGUI extends Battle {
                 final int idx = i;
 
                 Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
-                b.setPrefWidth(120);
-                b.setWrapText(true);
                 styleButton(b, "#3c6496", "#5078aa");
                 b.setOnAction(e -> {
                     selectSwitch(idx);
@@ -740,7 +737,9 @@ public class BattleGUI extends Battle {
         styleButton(back, "#555555", "#666666");
         back.setOnAction(e -> showActionButtons());
 
-        bottomContainer.getChildren().addAll(title, monsterList, back);
+        monsterList.getChildren().add(back);
+
+        bottomContainer.getChildren().addAll(title, monsterList);
     }
 
     private void selectSwitch(int monsterIndex) {
@@ -765,9 +764,7 @@ public class BattleGUI extends Battle {
         Label title = new Label("Choisissez un objet à utiliser:");
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane itemList = new FlowPane();
-        itemList.setHgap(10);
-        itemList.setVgap(10);
+        HBox itemList = new HBox(10);
         itemList.setAlignment(Pos.CENTER);
 
         java.util.List<ObjectMonster> inventory = p.getInventory();
@@ -786,7 +783,9 @@ public class BattleGUI extends Battle {
         styleButton(back, "#555555", "#666666");
         back.setOnAction(e -> showActionButtons());
 
-        bottomContainer.getChildren().addAll(title, itemList, back);
+        itemList.getChildren().add(back);
+
+        bottomContainer.getChildren().addAll(title, itemList);
     }
 
     private void selectItem(ObjectMonster item) {
@@ -1118,9 +1117,7 @@ public class BattleGUI extends Battle {
         Label title = new Label(player.getName() + ", choisissez un monstre:");
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane monsterList = new FlowPane();
-        monsterList.setHgap(10);
-        monsterList.setVgap(10);
+        HBox monsterList = new HBox(10);
         monsterList.setAlignment(Pos.CENTER);
 
         java.util.HashMap<Integer, Integer> indexMap = new java.util.HashMap<>();
@@ -1133,8 +1130,6 @@ public class BattleGUI extends Battle {
                 final int realIdx = i;
 
                 Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
-                b.setPrefWidth(120);
-                b.setWrapText(true);
                 styleButton(b, "#3c6496", "#5078aa");
                 b.setOnAction(e -> {
                     player.currentMonsterIndex = realIdx;
