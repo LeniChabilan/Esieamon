@@ -1,7 +1,6 @@
 package com.esiea.pootp.Monster;
 
 import com.esiea.pootp.Status.ParalyzedStatus;
-import com.esiea.pootp.Status.Status;
 
 /**
  * Monstre de type Électrique. Peut paralyser l'adversaire selon une probabilité.
