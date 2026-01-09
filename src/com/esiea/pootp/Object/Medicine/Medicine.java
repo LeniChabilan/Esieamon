@@ -8,7 +8,6 @@ import com.esiea.pootp.Object.ObjectMonster;
 import com.esiea.pootp.Status.BurnedStatus;
 import com.esiea.pootp.Status.NormalStatus;
 import com.esiea.pootp.Status.ParalyzedStatus;
-import com.esiea.pootp.Object.Medicine.MedicineType;
 import com.esiea.pootp.Status.PoisonedStatus;
 
 /**

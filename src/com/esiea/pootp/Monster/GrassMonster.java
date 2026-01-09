@@ -1,7 +1,6 @@
 package com.esiea.pootp.Monster;
 
 import com.esiea.pootp.Battle.Battle;
-import com.esiea.pootp.Ground.FloodedGround;
 import com.esiea.pootp.Status.NormalStatus;
 
 /**

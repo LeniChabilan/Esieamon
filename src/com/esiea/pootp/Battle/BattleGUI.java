@@ -1,10 +1,7 @@
 package com.esiea.pootp.Battle;
-
-import javax.sound.sampled.*;
 import java.io.File;
 
 import com.esiea.pootp.Player.Player;
-import com.esiea.pootp.Parser.Parser;
 import com.esiea.pootp.Object.ObjectMonster;
 import com.esiea.pootp.Attack.Attack;
 import com.esiea.pootp.Attack.AttackMonster;
@@ -26,18 +23,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -651,10 +644,6 @@ public class BattleGUI extends Battle {
         return phase == Phase.P1_CHOOSE ? player1 : player2;
     }
 
-    private Player otherPlayer() {
-        return phase == Phase.P1_CHOOSE ? player2 : player1;
-    }
-
     private void showActionButtons() {
         bottomContainer.getChildren().clear();
         hintLabel.setText("Tour de " + currentPlayer().getName() + " : choisissez une action.");
@@ -755,8 +744,6 @@ public class BattleGUI extends Battle {
         java.util.List<ObjectMonster> inventory = p.getInventory();
         for (int i = 0; i < inventory.size(); i++) {
             ObjectMonster item = inventory.get(i);
-            final int idx = i;
-
             Button b = new Button(item.getName());
             b.setPrefWidth(120);
             styleButton(b, "#3c6496", "#5078aa");
@@ -1277,11 +1264,6 @@ public class BattleGUI extends Battle {
         } catch (Exception e) {
             System.out.println("[AUDIO] Erreur: " + e.getMessage());
         }
-    }
-    
-    private AudioFormat findCompatibleFormat(AudioFormat original) {
-        // Méthode conservée pour compatibilité future, mais non utilisée actuellement
-        return original;
     }
 
     private void stopBackgroundMusic() {
