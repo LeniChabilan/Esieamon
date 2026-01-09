@@ -60,10 +60,6 @@ public class BattleTerminal extends Battle {
         System.out.println(player2Line + COLOR_RESET);
     }
 
-    private void displayMonsterSwitch(Player player, String color) {
-        System.out.println(color + "\n" + player.getName() + " a changé de monstre pour " + player.getCurrentMonster().getName() + " !" + COLOR_RESET);
-    }
-
     private void selectMonstersForPlayer(Player player, Parser parser, String color) {
         Scanner scanner = new Scanner(System.in);
         List<Monster> availableMonsters = parser.getAvailableMonsters();

@@ -1,0 +1,279 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam classBackgroundColor #F0F0F0
+skinparam classBorderColor #333333
+skinparam arrowColor #333333
+skinparam fontSize 9
+skinparam padding 3
+skinparam linetype ortho
+scale 0.8
+
+' =======================
+' ENUMERATIONS
+' =======================
+enum AttackType {
+  FIRE
+  WATER
+  GRASS
+  ELECTRIC
+  EARTH
+  INSECT
+  NORMAL
+}
+
+enum PotionType {
+  HP
+  ATTACK
+  DEFENSE
+  SPEED
+}
+
+enum PotionEfficiency {
+  NORMAL
+  SUPER
+  HYPER
+}
+
+enum MedicineType {
+  BURN_HEAL
+  PARALYZE_HEAL
+  POISON_HEAL
+  SPONGE_GROUND
+}
+
+enum ActionType {
+  ATTACK
+  SWITCH
+  ITEM
+}
+
+' =======================
+' ATTACK CLASSES
+' =======================
+abstract class Attack {
+  # name : String
+  + getName() : String
+  + performAttack(attacker : Monster, defender : Monster, battle : Battle) : HashMap
+}
+
+class AttackMonster extends Attack {
+  - power : int
+  - maxUses : int
+  - nbUses : int
+  - failureRate : double
+  - type : AttackType
+  + getPower() : int
+  + getNbUses() : int
+  + getFailureRate() : double
+  + getType() : AttackType
+}
+
+class AttackStruggle extends Attack {
+  + performAttack(attacker : Monster, defender : Monster, battle : Battle) : HashMap
+}
+
+' =======================
+' STATUS CLASSES (STATE PATTERN)
+' =======================
+abstract class Status {
+  # name : String
+  # duration : int
+  + getName() : String
+  + getDuration() : int
+  + performStatus(monster : Monster, ground : Ground) : HashMap
+}
+
+class NormalStatus extends Status
+class BurnedStatus extends Status
+class PoisonedStatus extends Status
+class ParalyzedStatus extends Status
+
+class BurrowedStatus extends Status {
+  - durationBorrowed : int
+  - originalDefense : int
+}
+
+' =======================
+' MONSTER BASE & TYPES
+' =======================
+abstract class Monster {
+  # name : String
+  # health : int
+  # power : int
+  # defense : int
+  # speed : int
+  # currentHealth : int
+  # attacks : List<AttackMonster>
+  # status : Status
+  + getName() : String
+  + getHealth() : int
+  + getPower() : int
+  + getDefense() : int
+  + getSpeed() : int
+  + setDefense(defense : int) : void
+  + getCurrentHealth() : int
+  + getStatus() : Status
+  + getAttacks() : List<AttackMonster>
+  + setCurrentHealth(health : int) : void
+  + heal(amount : int) : void
+  + boostAttack(amount : int) : void
+  + boostDefense(amount : int) : void
+  + boostSpeed(amount : int) : void
+  + setStatus(status : Status) : void
+  + applyStatus(defender : Monster) : boolean
+  + applyGround(battle : Battle) : boolean
+  + applyPassiveEffect(battle : Battle) : String
+}
+
+class FireMonster extends Monster {
+  - burnChance : double
+}
+
+class WaterMonster extends Monster {
+  - floodChance : double
+  - fallChance : double
+}
+
+class ElectricMonster extends Monster {
+  - paralysisChance : double
+}
+
+class EarthMonster extends Monster {
+  - burrowChance : double
+}
+
+abstract class NatureMonster extends Monster
+
+class GrassMonster extends NatureMonster {
+  - healChance : double
+}
+
+class InsectMonster extends NatureMonster {
+  - nbAttacksSpe : int
+}
+
+' =======================
+' OBJECT / ITEM CLASSES
+' =======================
+abstract class ObjectMonster {
+  # weight : int
+  + getWeight() : int
+  + getName() : String
+  + use(monster : Monster, battle : Battle) : String
+}
+
+class Potion extends ObjectMonster {
+  - potionEfficiency : PotionEfficiency
+  - potionType : PotionType
+}
+
+class Medicine extends ObjectMonster {
+  - medicineType : MedicineType
+}
+
+' =======================
+' GROUND CLASSES
+' =======================
+abstract class Ground {
+  # name : String
+  # duration : int
+  + getName() : String
+  + getDuration() : int
+  + incrementDuration() : void
+  + applyGroundEffect(m1 : Monster, m2 : Monster, battle : Battle) : HashMap<String, String>
+}
+
+class NormalGround extends Ground
+
+class FloodedGround extends Ground {
+  - fallChance : double
+  - maxDuration : int
+}
+
+' =======================
+' PLAYER
+' =======================
+class Player {
+  - name : String
+  - monsters : List<Monster>
+  - inventory : List<ObjectMonster>
+  - currentMonsterIndex : int
+}
+
+' =======================
+' PARSER
+' =======================
+class Parser {
+  - monsterMap : Map
+  - attackMap : Map
+}
+
+' =======================
+' BATTLE
+' =======================
+abstract class Battle {
+  # player1 : Player
+  # player2 : Player
+  # parser : Parser
+  # teamSize : int
+  # ground : Ground
+}
+
+class BattleTerminal extends Battle
+class BattleGUI extends Battle
+
+class MusicPlayer
+
+' =======================
+' EXECUTABLE
+' =======================
+class EsieamonExecutable {
+  + main(args : String[]) : void
+}
+
+' =======================
+' RELATIONSHIPS (SANS HÉRITAGE REDONDANT)
+' =======================
+
+Monster "1" o-- "0..4" AttackMonster : attacks
+Monster "1" -- "1" Status : status
+
+Player "1" o-- "1..6" Monster : team
+Player "1" o-- "0..5" ObjectMonster : inventory
+
+Battle "1" -- "2" Player
+Battle "1" -- "1" Ground
+Battle "1" -- "1" Parser
+
+AttackMonster "1" -- "1" AttackType
+Potion "1" -- "1" PotionType
+Potion "1" -- "1" PotionEfficiency
+Medicine "1" -- "1" MedicineType
+
+BattleGUI "1" -- "1" MusicPlayer
+EsieamonExecutable ..> BattleGUI
+EsieamonExecutable ..> BattleTerminal
+
+BattleTerminal ..> ActionType : uses
+
+note right of Monster
+  Abstract base class for all Pokémon-like creatures.
+  Defines attributes and methods for combat.
+end note
+
+note right of Status
+  State pattern: each monster has a status
+  that affects its behavior during combat.
+end note
+
+note right of Ground
+  Abstract terrain class. Different grounds
+  have different effects on combat.
+end note
+
+note right of Battle
+  Abstract base for both Terminal and GUI
+  implementations of the battle system.
+end note
+@enduml

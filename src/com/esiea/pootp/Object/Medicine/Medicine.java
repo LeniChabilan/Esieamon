@@ -15,7 +15,6 @@ import com.esiea.pootp.Status.PoisonedStatus;
  * ou assécher un terrain inondé.
  */
 public class Medicine extends ObjectMonster {
-    private int weight;
     private MedicineType medecineType;
     
     /**
@@ -24,7 +23,6 @@ public class Medicine extends ObjectMonster {
      */
     public Medicine(int weight, MedicineType medecineType) {
         super(weight);
-        this.weight = weight;
         this.medecineType = medecineType; 
     }
 

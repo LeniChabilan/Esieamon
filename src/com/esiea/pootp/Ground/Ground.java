@@ -11,8 +11,8 @@ import com.esiea.pootp.Monster.Monster;
  */
 public abstract class Ground {
 
-    private String name;
-    private int duration;
+    protected String name;
+    protected int duration;
 
     /**
      * Crée un terrain avec le nom fourni.
