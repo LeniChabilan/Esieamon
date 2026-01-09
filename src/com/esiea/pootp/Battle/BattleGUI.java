@@ -23,6 +23,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -62,6 +64,7 @@ public class BattleGUI extends Battle {
     private Label hintLabel;
     private TextArea logArea;
     private BorderPane battlefieldArea;
+    private Label battleTitle;
 
     private MonsterView viewP1;
     private MonsterView viewP2;
@@ -338,6 +341,18 @@ public class BattleGUI extends Battle {
         alert.showAndWait();
     }
 
+    private void showGameOverAlert(String title, String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.setOnCloseRequest(e -> {
+            stopBackgroundMusic();
+            System.exit(0);
+        });
+        alert.showAndWait();
+    }
+
     private void showMonsterSelection() {
         primaryStage.setTitle("Sélection des monstres");
         primaryStage.setWidth(1200);
@@ -561,6 +576,11 @@ public class BattleGUI extends Battle {
         } catch (Exception e) {
             root.setStyle("-fx-background-color: linear-gradient(#1e1e28, #0f1622);");
         }
+        
+        // Mettre à jour le titre avec le terrain actuel
+        if (battleTitle != null) {
+            battleTitle.setText("Bataille - Terrain : " + ground.getName());
+        }
     }
     
     
@@ -580,11 +600,17 @@ public class BattleGUI extends Battle {
         double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / maxHp));
 
         view.hpText = new Label(currentHp + " / " + maxHp + " HP");
-        view.hpText.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 12;");
+        view.hpText.setStyle("-fx-text-fill: black; -fx-font-size: 12;");
 
         view.hpBar = new ProgressBar(hpRatio);
         view.hpBar.setPrefWidth(140);
-        view.hpBar.setStyle("-fx-accent: " + accentColor + ";");
+        view.hpBar.setPrefHeight(20);
+        view.hpBar.setStyle("-fx-accent: " + accentColor + "; -fx-padding: 2; -fx-border-color: black; -fx-border-width: 1; -fx-control-inner-background: white;");
+
+        // Créer une HBox pour mettre HP et barre côte à côte
+        HBox hpContainer = new HBox(8);
+        hpContainer.setAlignment(Pos.CENTER);
+        hpContainer.getChildren().addAll(view.hpText, view.hpBar);
 
         // Charger le sprite du Pokémon
         if (monster != null) {
@@ -600,10 +626,18 @@ public class BattleGUI extends Battle {
         spriteContainer.setAlignment(Pos.CENTER);
         spriteContainer.getChildren().add(view.sprite);
 
-        view.name = new Label(monster != null ? monster.getName() : "Aucun monstre");
-        view.name.setStyle("-fx-text-fill: #f0f0f0; -fx-font-size: 16; -fx-font-weight: bold;");
+        String monsterDisplayName = "Aucun monstre";
+        if (monster != null) {
+            monsterDisplayName = monster.getName();
+            String status = monster.getStatus().getName();
+            if (!status.equals("Normal")) {
+                monsterDisplayName += " (" + status + ")";
+            }
+        }
+        view.name = new Label(monsterDisplayName);
+        view.name.setStyle("-fx-text-fill: black; -fx-font-size: 16; -fx-font-weight: bold;");
 
-        monsterDisplay.getChildren().addAll(view.hpText, view.hpBar, spriteContainer, view.name);
+        monsterDisplay.getChildren().addAll(view.name, hpContainer, spriteContainer);
         view.container = monsterDisplay;
         return view;
     }
@@ -623,7 +657,12 @@ public class BattleGUI extends Battle {
         int maxHp = monster.getHealth();
         int currentHp = monster.getCurrentHealth();
         double hpRatio = Math.max(0.0, Math.min(1.0, (double) currentHp / Math.max(1, maxHp)));
-        view.name.setText(monster.getName());
+        String displayName = monster.getName();
+        String status = monster.getStatus().getName();
+        if (!status.equals("Normal")) {
+            displayName += " (" + status + ")";
+        }
+        view.name.setText(displayName);
         view.hpText.setText(currentHp + " / " + maxHp + " HP");
         view.hpBar.setProgress(hpRatio);
 
@@ -686,9 +725,7 @@ public class BattleGUI extends Battle {
         Label title = new Label("Choisissez un monstre à envoyer au combat:");
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane monsterList = new FlowPane();
-        monsterList.setHgap(10);
-        monsterList.setVgap(10);
+        HBox monsterList = new HBox(10);
         monsterList.setAlignment(Pos.CENTER);
 
         for (int i = 0; i < p.monsters.size(); i++) {
@@ -697,8 +734,6 @@ public class BattleGUI extends Battle {
                 final int idx = i;
 
                 Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
-                b.setPrefWidth(120);
-                b.setWrapText(true);
                 styleButton(b, "#3c6496", "#5078aa");
                 b.setOnAction(e -> {
                     selectSwitch(idx);
@@ -711,7 +746,9 @@ public class BattleGUI extends Battle {
         styleButton(back, "#555555", "#666666");
         back.setOnAction(e -> showActionButtons());
 
-        bottomContainer.getChildren().addAll(title, monsterList, back);
+        monsterList.getChildren().add(back);
+
+        bottomContainer.getChildren().addAll(title, monsterList);
     }
 
     private void selectSwitch(int monsterIndex) {
@@ -736,9 +773,7 @@ public class BattleGUI extends Battle {
         Label title = new Label("Choisissez un objet à utiliser:");
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane itemList = new FlowPane();
-        itemList.setHgap(10);
-        itemList.setVgap(10);
+        HBox itemList = new HBox(10);
         itemList.setAlignment(Pos.CENTER);
 
         java.util.List<ObjectMonster> inventory = p.getInventory();
@@ -755,7 +790,9 @@ public class BattleGUI extends Battle {
         styleButton(back, "#555555", "#666666");
         back.setOnAction(e -> showActionButtons());
 
-        bottomContainer.getChildren().addAll(title, itemList, back);
+        itemList.getChildren().add(back);
+
+        bottomContainer.getChildren().addAll(title, itemList);
     }
 
     private void selectItem(ObjectMonster item) {
@@ -779,9 +816,7 @@ public class BattleGUI extends Battle {
         Label title = new Label("Choisissez une attaque pour " + p.getName() + " / " + monster.getName());
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane attackList = new FlowPane();
-        attackList.setHgap(10);
-        attackList.setVgap(10);
+        HBox attackList = new HBox(10);
         attackList.setAlignment(Pos.CENTER);
 
         java.util.List<Attack> available = new java.util.ArrayList<>();
@@ -811,8 +846,10 @@ public class BattleGUI extends Battle {
         Button back = new Button("Retour");
         styleButton(back, "#555555", "#666666");
         back.setOnAction(e -> showActionButtons());
+        
+        attackList.getChildren().add(back);
 
-        bottomContainer.getChildren().addAll(title, attackList, back);
+        bottomContainer.getChildren().addAll(title, attackList);
     }
 
     private void selectAttack(Attack attack) {
@@ -908,20 +945,6 @@ public class BattleGUI extends Battle {
         if (a2 != null && !canAttack2) {
             appendLog(m2.getName() + " est " + m2.getStatus().getName() + " et ne peut pas attaquer !");
             a2 = null;
-        }
-
-        // Appliquer les effets spéciaux
-        if (m1 != null) {
-            String specialEffect1 = m1.applySpecialEffect(this);
-            if (!specialEffect1.isEmpty()) {
-                appendLog(specialEffect1);
-            }
-        }
-        if (m2 != null) {
-            String specialEffect2 = m2.applySpecialEffect(this);
-            if (!specialEffect2.isEmpty()) {
-                appendLog(specialEffect2);
-            }
         }
 
         // Appliquer les effets passifs
@@ -1026,7 +1049,8 @@ public class BattleGUI extends Battle {
         if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
             String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
             appendLog("Le combat est terminé. Vainqueur: " + winner);
-            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            stopBackgroundMusic();
+            showGameOverAlert("Fin du combat", winner + " a gagné!");
             return;
         }
 
@@ -1071,8 +1095,7 @@ public class BattleGUI extends Battle {
         if (!player1.hasUsableMonsters() || !player2.hasUsableMonsters()) {
             String winner = player1.hasUsableMonsters() ? player1.getName() : player2.getName();
             appendLog("Le combat est terminé. Vainqueur: " + winner);
-            stopBackgroundMusic();
-            showAlert("Fin du combat", winner + " a gagné!", AlertType.INFORMATION);
+            showGameOverAlert("Fin du combat", winner + " a gagné!");
             return;
         }
 
@@ -1087,9 +1110,7 @@ public class BattleGUI extends Battle {
         Label title = new Label(player.getName() + ", choisissez un monstre:");
         title.setStyle("-fx-text-fill: #dcdcdc; -fx-font-size: 14;");
 
-        FlowPane monsterList = new FlowPane();
-        monsterList.setHgap(10);
-        monsterList.setVgap(10);
+        HBox monsterList = new HBox(10);
         monsterList.setAlignment(Pos.CENTER);
 
         java.util.HashMap<Integer, Integer> indexMap = new java.util.HashMap<>();
@@ -1102,8 +1123,6 @@ public class BattleGUI extends Battle {
                 final int realIdx = i;
 
                 Button b = new Button(m.getName() + "\n(" + m.getCurrentHealth() + "/" + m.getHealth() + " HP)");
-                b.setPrefWidth(120);
-                b.setWrapText(true);
                 styleButton(b, "#3c6496", "#5078aa");
                 b.setOnAction(e -> {
                     player.currentMonsterIndex = realIdx;
@@ -1170,11 +1189,11 @@ public class BattleGUI extends Battle {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #1e1e28;");
 
-        Label title = new Label("Bataille - Terrain : " + ground.getName());
-        title.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 30; -fx-font-weight: bold;");
-        BorderPane.setAlignment(title, Pos.CENTER);
-        BorderPane.setMargin(title, new Insets(20, 0, 12, 0));
-        root.setTop(title);
+        battleTitle = new Label("Bataille - Terrain : " + ground.getName());
+        battleTitle.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 30; -fx-font-weight: bold;");
+        BorderPane.setAlignment(battleTitle, Pos.CENTER);
+        BorderPane.setMargin(battleTitle, new Insets(20, 0, 12, 0));
+        root.setTop(battleTitle);
 
         // Centre avec l'image de fond et log à droite
         HBox centerContainer = new HBox(12);
@@ -1191,10 +1210,10 @@ public class BattleGUI extends Battle {
         viewP1 = createMonsterDisplay(player1, "#4682b4");
         viewP2 = createMonsterDisplay(player2, "#ff8c00");
 
-        StackPane.setAlignment(viewP1.container, Pos.BOTTOM_LEFT);
-        StackPane.setAlignment(viewP2.container, Pos.TOP_RIGHT);
-        StackPane.setMargin(viewP1.container, new Insets(0, 0, 60, 80));
-        StackPane.setMargin(viewP2.container, new Insets(40, 80, 0, 0));
+        StackPane.setAlignment(viewP1.container, Pos.CENTER_LEFT);
+        StackPane.setAlignment(viewP2.container, Pos.CENTER_RIGHT);
+        StackPane.setMargin(viewP1.container, new Insets(150, 600, 0, 0));
+        StackPane.setMargin(viewP2.container, new Insets(0, 0, 150, 600));
 
         monsterLayer.getChildren().addAll(viewP1.container, viewP2.container);
 
@@ -1216,6 +1235,7 @@ public class BattleGUI extends Battle {
         logArea.setWrapText(true);
         logArea.setPrefRowCount(20);
         logArea.setText("Bienvenue dans le combat!\nLes actions seront affichées ici...\n");
+        VBox.setVgrow(logArea, Priority.ALWAYS);
         
         infoPanel.getChildren().addAll(logTitle, logArea);
         centerContainer.getChildren().add(infoPanel);

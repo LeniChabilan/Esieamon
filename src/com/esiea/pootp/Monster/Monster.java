@@ -138,10 +138,6 @@ public abstract class Monster {
         return false;
     }
 
-    public String applySpecialEffect(Battle battle) {
-        return "";
-    }
-
     public String applyPassiveEffect(Battle battle) {
         return "";
     }
