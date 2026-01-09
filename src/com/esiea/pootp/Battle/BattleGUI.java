@@ -16,6 +16,7 @@ import com.esiea.pootp.Ground.FloodedGround;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -69,6 +70,7 @@ public class BattleGUI extends Battle {
     private MonsterView viewP2;
     private MusicPlayer musicPlayer;
     
+    // Structures de données pour la vue des monstres
     private static class MonsterView {
         VBox container;
         Label hpText;
@@ -241,6 +243,7 @@ public class BattleGUI extends Battle {
 
         VBox teamSizeBox = new VBox(8);
         teamSizeBox.setStyle("-fx-background-color: #2d2d3c; -fx-padding: 15; -fx-border-color: #6a5acd; -fx-border-width: 2; -fx-border-radius: 5;");
+        teamSizeBox.setAlignment(Pos.CENTER);
         Label teamSizeLabel = new Label("Taille de l'équipe");
         teamSizeLabel.setStyle("-fx-text-fill: #6a5acd; -fx-font-size: 14; -fx-font-weight: bold;");
         teamSizeBox.getChildren().addAll(teamSizeLabel, teamSizeField);
@@ -248,6 +251,7 @@ public class BattleGUI extends Battle {
         playerGrid.add(player1Box, 0, 0);
         playerGrid.add(player2Box, 1, 0);
         playerGrid.add(teamSizeBox, 0, 1, 2, 1);
+        GridPane.setHalignment(teamSizeBox, HPos.CENTER);
         
         // Boutons
         HBox buttonBox = new HBox(20);
@@ -264,7 +268,7 @@ public class BattleGUI extends Battle {
             if (player1Name.isEmpty() || player2Name.isEmpty()) {
                 showAlert("Erreur", "Veuillez entrer les noms des deux joueurs!", AlertType.ERROR);
             } else {
-                // Parse team size, default to 3 if empty
+                // Définir la taille de l'équipe
                 int chosenTeamSize = 3;
                 if (!teamSizeInput.isEmpty()) {
                     try {
